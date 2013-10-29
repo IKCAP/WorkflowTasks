@@ -1,0 +1,400 @@
+@CHARSET "UTF-8";
+* {
+    -moz-box-sizing: border-box; 
+    -ms-box-sizing: border-box; 
+    box-sizing: border-box; 
+}
+
+#lod-main {
+	float: left;
+	width: 65%;
+}
+
+#lod-side {
+	float: right;
+	width: 33%;
+}
+
+.lodbrowserlinks {
+	font-size: 0.9em;
+}
+
+.uri {
+	font-size: 0.9em;
+	color: gray;
+	font-style: italic;
+	white-space: nowrap;
+}
+
+.lodentity {
+	border-style:dotted;
+	border-width:thin;
+	background-color:#f8f8f8;
+	margin-bottom:0.2em;
+	padding:0.2em;
+	display:relative;
+}
+
+.urirow {
+	background-color:#f8f8f8;
+}
+
+.loaddata {
+	position:absolute;
+	right : 1em;
+	bottom : 0.5em;
+}
+
+#main-workflow,
+#main-tasks,
+#main-answers,
+#main-tree,
+#main-data,
+#main-comp,
+#main-credits,
+#category-chooser,
+#main-facts {
+	clear:both;
+	padding:5px;
+	margin-bottom:5px;
+	width:80%;
+	font-size:0.9em;
+	border-style:solid;
+	border-color: #aaa;
+	border-width:thin;
+}
+
+img.wflowimage {
+	width:50%;
+	border: thin #aaa solid;
+}
+
+.wt-sidebox,
+.wt-infobox {
+	padding:5px;
+	margin-bottom:5px;
+	font-size:0.9em;
+	border: 1px solid #aaa;
+}
+
+.wt-sidebox {
+	vertical-align:top;
+	background-color:#f6f6f6;
+	width:20em;
+	margin-left:5px;
+	float:right;
+	clear:right;
+}
+
+#main-answers {
+	background-color:#f6fff6;
+}
+
+#main-workflow {
+	background-color:#f0fff0;
+}
+
+#main-tasks,
+#main-tree {
+	background-color:#fff6f6;
+}
+
+#main-data {
+	background-color:khaki;
+}
+
+#main-comp {
+	background-color:khaki;
+}
+
+#main-facts {
+	background-color:#f6f6ff;
+}
+
+#main-credits {
+	background-color:#f6f6f6;
+}
+
+#main-tree div {
+	border-bottom:1px solid #eee;
+}
+
+#main-facts tr.fact td {
+	padding-left:4px;
+	padding-right:4px;
+}
+
+.sidebar-facts-source {
+	font-size: 0.9em;
+	white-space: nowrap;
+}
+
+.actionlink {
+	font-size: 0.9em;
+}
+
+.head-note {
+	font-size: 0.9em;
+	align: right;
+}
+
+.noarticletext {
+	display:none;
+}
+
+#wikipedia-content, #lod-content {
+	min-height:150px;
+}
+
+a.lodlink {
+	cursor:pointer;
+}
+
+a.lodbutton {
+	cursor:pointer;
+	padding:1px 4px 1px 4px;
+	margin:1px 2px 1px 2px;
+	background-color:#eee;
+	border:1px solid #ddd;
+}
+
+.hideotherlanguages tr.otherlang {
+	display:none;
+}
+
+
+a.lodbutton:hover {
+	background-color:#FFEE99;
+	text-decoration:none;
+}
+
+.lodselected {
+	background-color:#FFEE99;
+}
+
+.editsection {
+	visibility:hidden;
+}
+	
+.x-small {
+	font-size: 0.9em;
+}
+
+.lodhidden {
+	display:none;
+}
+
+.lodinvisible {
+	visibility:hidden;
+}
+
+.lodblock {
+	display:block;
+}
+
+.lodright {
+	display:block;
+	float:right;
+}
+
+.lodleft {
+	display:block;
+	float:left;
+}
+
+table.compact { 
+	border-collapse: collapse; 
+	width: 100%;
+}
+table.compact td {
+	padding:0px;
+}
+table.compact ul {
+	margin-top:0px;
+}
+
+table.lod-table { 
+	table-layout:fixed; 
+	border-collapse: collapse; 
+	width: 100%;
+	font-size:1em;
+}
+
+table.lod-table td { 
+	border-top: 1px solid #eee; 
+	text-overflow:ellipsis; 
+	overflow:hidden; 
+	white-space:nowrap; 
+}
+
+table.lod-table table td { 
+	border-width: 0px;
+}
+
+table.lod-facts-inner-table { 
+	table-layout:fixed; 
+	border-collapse: collapse; 
+	width: 100%;
+	background-color: transparent;
+}
+table.lod-facts-inner-table td { 
+	padding:0px;
+}
+
+table.lod-table td.prop {
+	width: 30%;
+}
+
+table.lod-table td.source {
+	font-size: 0.9em;
+	border-top: 0px;
+}
+
+div.lodsources {
+	float:right;
+	opacity:0.5;
+}
+
+a.source_sindice {
+	display:block;
+	float:left;
+	width:50px;
+	height:13px;
+	background: url('../images/sindice.png') no-repeat;
+}
+
+a.source_sameas {
+	display:block;
+	float:left;
+	width:45px;
+	height:9px;
+	background: url('../images/sameas.png') no-repeat;
+}
+
+a.source_organicdatapublishing {
+	display:block;
+	float:left;
+	width:16px;
+	height:16px;
+	background: url('../images/odp.png') no-repeat;
+}
+
+a.source_user {
+	display:block;
+	float:left;
+	width:45px;
+	height:11px;
+	background: url('../images/user.png') no-repeat;
+}
+
+.lodlabel {
+	font-weight:bold;
+}
+
+.loddomain {
+	font-size:0.9em;
+	font-style:italic;
+}
+
+#ca-edit {
+	visibility: hide;
+}
+
+.lodspacer {
+	height:5px;
+}
+
+a.todo,
+a.todo:visited,
+a.todo:hover {
+	color: #BA0000;
+}
+
+/* Menu */
+.lodmenu {	
+	margin: 0;
+	padding: 0;
+}
+	
+.lodmenu li {	
+	list-style: none;
+	font-size:0.9em;
+}
+
+.lodmenu li a {	
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.lodmenu li ul {	
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	visibility: hidden;
+	border: 1px solid #DDD;
+	z-index:99;
+}
+		
+.lodmenu li ul li {	
+	float: none;
+	display: inline
+}
+		
+.lodmenu li ul li a {	
+	width: auto;
+	display: block;
+	background: #FFF;
+	padding:0px 2px 0px 10px;
+	border-bottom: 1px solid #EEE;
+}
+		
+.lodmenu li ul li a:hover {	
+	background: #FFEE99;
+}
+
+.helpbutton {
+	display:block;
+	float:right;
+	padding-left:16px;
+	height:16px;
+	background-image: url(../images/help.png);
+	background-repeat: no-repeat;
+}
+
+/* jqModal base Styling courtesy of;
+	Brice Burgess <bhb@iceburg.net> */
+
+/* The Window's CSS z-index value is respected (takes priority). If none is supplied,
+	the Window's z-index value will be set to 3000 by default (via jqModal.js). */
+	
+.jqmWindow {
+    display: none;
+    
+    position: fixed;
+    top: 17%;
+    left: 50%;
+    
+    margin-left: -300px;
+    width: 600px;
+    
+    background-color: #EEE;
+    color: #333;
+    border: 1px solid black;
+    padding: 12px;
+}
+
+.jqmOverlay { background-color: #000; }
+
+/* Background iframe styling for IE6. Prevents ActiveX bleed-through (<select> form elements, etc.) */
+* iframe.jqm {position:absolute;top:0;left:0;z-index:-1;
+	width: expression(this.parentNode.offsetWidth+'px');
+	height: expression(this.parentNode.offsetHeight+'px');
+}
+
+/* Fixed posistioning emulation for IE6
+     Star selector used to hide definition from browsers other than IE6
+     For valid CSS, use a conditional include instead */
+* html .jqmWindow {
+     position: absolute;
+     top: expression((document.documentElement.scrollTop || document.body.scrollTop) + Math.round(17 * (document.documentElement.offsetHeight || document.body.clientHeight) / 100) + 'px');
+}
