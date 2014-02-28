@@ -53,11 +53,11 @@ class WTData extends WTBase {
 		# SMW Initialization 
 		$subject = SMWDIWikiPage::newFromTitle( $this->title );
 
-		$locProp = new SMWDIProperty('DataHasLocation');
-		$typeProp = new SMWDIProperty('DataHasType');
-		//$pubbyProp = new SMWDIProperty('DataHasPubbyLink');
-		$indataProp = new SMWDIProperty('WorkflowInputDataArtifact');
-		$gendataProp = new SMWDIProperty('WorkflowDataArtifact');
+		$locProp = SMWDIProperty::newFromUserLabel('DataHasLocation');
+		$typeProp = SMWDIProperty::newFromUserLabel('DataHasType');
+		//$pubbyProp = SMWDIProperty::newFromUserLabel('DataHasPubbyLink');
+		$indataProp = SMWDIProperty::newFromUserLabel('WorkflowInputDataArtifact');
+		$gendataProp = SMWDIProperty::newFromUserLabel('WorkflowDataArtifact');
 	
 		$location = smwfGetStore()->getPropertyValues( $subject, $locProp );
 		$types = smwfGetStore()->getPropertyValues( $subject, $typeProp );

@@ -55,36 +55,37 @@ class Workflow extends WTBase {
 
 		# SMW Initialization 
 		$subject = SMWDIWikiPage::newFromTitle( $this->title );
+		$store = &smwfGetStore();
 
 		$url = "";
-		$wflowProp = new SMWDIProperty('Workflow');
-		$wflows = smwfGetStore()->getPropertyValues( $subject, $wflowProp );
+		$wflowProp = SMWDIProperty::newFromUserLabel('Workflow');
+		$wflows = $store->getPropertyValues( $subject, $wflowProp );
 		foreach($wflows as $wflow) {
 			$url = $this->getUri($wflow);
 			break;
 		}
 
 		if($url) {
-			$dvarProp = new SMWDIProperty('WorkflowDataVariable');
-			$pvarProp = new SMWDIProperty('WorkflowParamVariable');
-			$procProp = new SMWDIProperty('WorkflowProcessVariable');
-			$contProp = new SMWDIProperty('WorkflowContributor');
-			$timageProp = new SMWDIProperty('WorkflowTemplateImage');
-			$tfileProp = new SMWDIProperty('WorkflowWingsTemplate');
-			$crinProp = new SMWDIProperty('WorkflowCreatedIn');
-			$wtempProp = new SMWDIProperty('WorkflowTemplate');
+			$dvarProp = SMWDIProperty::newFromUserLabel('WorkflowDataVariable');
+			$pvarProp = SMWDIProperty::newFromUserLabel('WorkflowParamVariable');
+			$procProp = SMWDIProperty::newFromUserLabel('WorkflowProcessVariable');
+			$contProp = SMWDIProperty::newFromUserLabel('WorkflowContributor');
+			$timageProp = SMWDIProperty::newFromUserLabel('WorkflowTemplateImage');
+			$tfileProp = SMWDIProperty::newFromUserLabel('WorkflowWingsTemplate');
+			$crinProp = SMWDIProperty::newFromUserLabel('WorkflowCreatedIn');
+			$wtempProp = SMWDIProperty::newFromUserLabel('WorkflowTemplate');
 	
-			$dvars = smwfGetStore()->getPropertyValues( $subject, $dvarProp );
-			$pvars = smwfGetStore()->getPropertyValues( $subject, $pvarProp );
-			$procs = smwfGetStore()->getPropertyValues( $subject, $procProp );
-			$contribs = smwfGetStore()->getPropertyValues( $subject, $contProp );
-			$timages = smwfGetStore()->getPropertyValues( $subject, $timageProp );
-			$tfiles = smwfGetStore()->getPropertyValues( $subject, $tfileProp );
-			$crins = smwfGetStore()->getPropertyValues( $subject, $crinProp );
+			$dvars = $store->getPropertyValues( $subject, $dvarProp );
+			$pvars = $store->getPropertyValues( $subject, $pvarProp );
+			$procs = $store->getPropertyValues( $subject, $procProp );
+			$contribs = $store->getPropertyValues( $subject, $contProp );
+			$timages = $store->getPropertyValues( $subject, $timageProp );
+			$tfiles = $store->getPropertyValues( $subject, $tfileProp );
+			$crins = $store->getPropertyValues( $subject, $crinProp );
 
 			$tmpurl = preg_replace('/page\//', '', $url);
 			$urlDV = SMWDataValueFactory::newTypeIdValue ('_uri', $tmpurl);
-			$execs = smwfGetStore()->getPropertySubjects( $wtempProp, $urlDV->getDataItem() );
+			$execs = $store->getPropertySubjects( $wtempProp, $urlDV->getDataItem() );
 
 			$details["url"] = $url;
 			foreach($dvars as $dvar) 
@@ -105,6 +106,7 @@ class Workflow extends WTBase {
 				$details['executions'][] = $exec->getDbKey();
 			return $details;
 		}
+		return null;
 	}
 }
 

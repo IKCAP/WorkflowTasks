@@ -52,6 +52,7 @@
 #main-data,
 #main-comp,
 #main-credits,
+#main-person,
 #category-chooser,
 #main-facts {
 	clear:both;
@@ -86,8 +87,28 @@ img.wflowimage {
 	clear:right;
 }
 
+table.contribs {
+	border: 1px solid #ddd;
+	border-collapse: collapse;
+}
+table.contribs th {
+	border-bottom: 1px solid #ddd;
+	background-color: #eee;	
+	font-weight: bold;
+}
+table.contribs td {
+	font-size: 0.9em;
+	padding: 4px;
+	border-bottom: 1px solid #ddd;
+}
+
 #main-answers {
 	background-color:#f6fff6;
+}
+
+#main-person div.scroller {
+	max-height: 200px;
+	overflow: auto;
 }
 
 #main-workflow {

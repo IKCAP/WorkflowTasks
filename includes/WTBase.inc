@@ -85,7 +85,10 @@ class WTBase {
 		$out->addScriptFile( $wgDir . '/js/WTAnswers.js' );
 		$out->addScriptFile( $wgDir . '/js/WTTasks.js' );
 		$out->addScriptFile( $wgDir . '/js/WTData.js' );
+		$out->addScriptFile( $wgDir . '/js/WTUserProvidedData.js' );
+		$out->addScriptFile( $wgDir . '/js/WTUserDescribedData.js' );
 		$out->addScriptFile( $wgDir . '/js/WTComponent.js' );
+		$out->addScriptFile( $wgDir . '/js/WTPerson.js' );
 		$out->addScriptFile( $wgDir . '/js/WTWorkflow.js' );
 		$out->addScriptFile( $wgDir . '/js/WTExecutedWorkflow.js' );
 		$out->addScriptFile( $wgDir . '/js/main.js' );
@@ -99,10 +102,11 @@ class WTBase {
 
 	function setJavascriptVariables($out) {
 		$details = $this->getPageDetails();
-		list ($error, $facts, $text) = WTFactsAPI::getFacts($this->title->getText());
+		list ($error, $facts, $text) = WTFactsAPI::getFacts($this->title->getFullText());
 		$out->addHTML("<script>var allwtfacts = ".json_encode($facts).";</script>\n");
 		$out->addHTML("<script>var allwtdetails = ".json_encode($details).";</script>\n");
-		$out->addHTML("<script>var wtallcategories = ['Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'Component', 'Model', 'People', 'Object'];</script>\n");
+		$out->addHTML("<script>var wtallcategories = ['Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object'];</script>\n");
+		//$out->addHTML("<script>var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person'];</script>\n");
 		$out->addHTML("<script>var wtcategories = [];</script>\n");
 		$cats = $out->getCategories();
 		foreach($cats as $cat) 
@@ -150,6 +154,10 @@ class WTBase {
 
 	function addDataDiv($out) {
 		$out->addHTML("<div id='main-data'></div>");
+	}
+
+	function addPersonDiv($out) {
+		$out->addHTML("<div id='main-person'></div>");
 	}
 
 	function addComponentDiv($out) {

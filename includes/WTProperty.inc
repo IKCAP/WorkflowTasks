@@ -17,7 +17,7 @@ class WTProperty extends WTBase {
 
 		# -- Add Information Box
 		$out->addHTML('<div class="wt-infobox">');
-		$out->addHTML('Add <b style="color:maroon">[[has type:&lt;Type&gt;]]</b> in the wiki text for this property to specify Property Range');
+		$out->addHTML('Add <b style="color:maroon">[[has type::&lt;Type&gt;]]</b> in the wiki text for this property to specify Property Range');
 		$out->addHTML('<ul><li><a href="http://semantic-mediawiki.org/wiki/Property:Has_type">See Documentation Here</a>.<li><a href="http://semantic-mediawiki.org/wiki/Special:Types">List of all types</a>.</ul>');
 		$out->addHTML('</div>');
 

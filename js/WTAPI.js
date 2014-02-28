@@ -36,6 +36,30 @@ WTAPI.prototype.removeExecutedWorkflow = function( title, url, callbackfunction 
 	this.removeFact( title, 'ExecutedWorkflow', url, callbackfunction );
 };
 
+WTAPI.prototype.addDataLink = function( title, url, callbackfunction ) {
+	this.addFact( title, 'DataLocation', url, callbackfunction );
+};
+
+WTAPI.prototype.removeDataLink = function( title, url, callbackfunction ) {
+	this.removeFact( title, 'DataLocation', url, callbackfunction );
+};
+
+WTAPI.prototype.addDataWikiLink = function( title, url, callbackfunction ) {
+	this.addFact( title, 'DataWikiLocation', url, callbackfunction );
+};
+
+WTAPI.prototype.removeDataWikiLink = function( title, url, callbackfunction ) {
+	this.removeFact( title, 'DataWikiLocation', url, callbackfunction );
+};
+
+WTAPI.prototype.addDataExtractedFrom = function( title, url, callbackfunction ) {
+	this.addFact( title, 'DataExtractedFrom', url, callbackfunction );
+};
+
+WTAPI.prototype.removeDataExtractedFrom = function( title, url, callbackfunction ) {
+	this.removeFact( title, 'DataExtractedFrom', url, callbackfunction );
+};
+
 WTAPI.prototype.createPageWithCategory = function( title, category, callbackfunction ) {
 	$j.post(this.apiuri, {
 		"action"   : "wtfacts",

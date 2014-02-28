@@ -74,7 +74,7 @@ class WTFactsAPI extends ApiBase {
 	}
 
 	public static function getDVText($dataValue) {
-		$text = $dataValue->getShortText();
+		$text = $dataValue->getShortText(null);
 		return $text;
 	}
 
@@ -116,7 +116,7 @@ class WTFactsAPI extends ApiBase {
 			while( $row = $dbr->fetchObject( $res ) ) {
 				if(preg_match("/Added PropertyValue: (.+) = (.+)\s*$/", $row->rev_comment, $m)) {
 					$prop = ucfirst(preg_replace('/\s/','_',$m[1]));
-					$propDI = $props[$prop];
+					$propDI = array_key_exists($prop, $props) ? $props[$prop] : null;
 					if(!$propDI) continue;
 					$sprop = strtolower($prop);
 					$val = $m[2];
@@ -127,7 +127,7 @@ class WTFactsAPI extends ApiBase {
 					$val = strtolower($val);
 					$val = preg_replace("/\/$/", "", $val);
 					$val = preg_replace("/ /", "_", $val);
-					if($auths["$sprop||$val"]) 
+					if(array_key_exists("$sprop||$val", $auths) && $auths["$sprop||$val"]) 
 						continue;
 					$user = $row->rev_user > 0 ? $row->rev_user_text : 'Anonymous';
 					$auths["$sprop||$val"] = $user;
@@ -168,28 +168,9 @@ class WTFactsAPI extends ApiBase {
 		if(!$data) {
 			$store = &smwfGetStore();
 			$titObj = Title::newFromText($title);
-			$subject = new SMWDIWikiPage( $titObj->getDbKey(), 0, null );
+			$subject = SMWDIWikiPage::newFromTitle( $titObj );
 			$data = $store->getSemanticData( $subject );
 		}
-
-		/*$diProperties = $data->getProperties();
-		foreach ( $diProperties as $diProperty ) {
-			$pkey = $diProperty->getKey();
-			if($pkey[0] == "_") continue;
-			if(in_array($diProperty->getLabel(), $blacklist)) continue;
-			$ptitle = Title::newFromText("Property:".$pkey);
-			$propexists = $ptitle->exists();
-			if($diProperty->getLabel()) {
-				$dvProperty = SMWDataValueFactory::newDataItemValue( $diProperty, null );
-				$values = $data->getPropertyValues( $diProperty );
-				$vals = array();
-				foreach ( $values as $di ) {
-					$dv = SMWDataValueFactory::newDataItemValue( $di, $diProperty );
-					$vals[] = WTFactsAPI::displayValue($dvProperty, $dv);
-				}
-				$facts[$diProperty->getLabel()] = array("exists"=>$propexists, "values"=>$vals);
-			}
-		}*/
 
 		$props = $data->getProperties();
 		foreach($props as $prop) {
@@ -224,7 +205,7 @@ class WTFactsAPI extends ApiBase {
 
 		$store = &smwfGetStore();
 		$subTitle = Title::newFromText($title);
-		$subject = new SMWDIWikiPage( $subTitle->getDbKey(), 0, null );
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
 		$data = $store->getSemanticData( $subject );
 
 		$propDI = SMWDIProperty::newFromUserLabel( $property );
@@ -264,6 +245,14 @@ class WTFactsAPI extends ApiBase {
 							"key"=>$antitle->getDbKey());
 				$ret[] = array("item"=>$item);
 			}
+			else if($property == "DataLocation") {
+				$page = new WTUserDescribedData(Title::newFromText($title));
+				$ret[] = $page->getPageDetails();
+			}
+			else if($property == "DataWikiLocation") {
+				$page = new WTUserProvidedData(Title::newFromText($title));
+				$ret[] = $page->getPageDetails();
+			}
 		}
 		return $ret;
 	}
@@ -271,7 +260,7 @@ class WTFactsAPI extends ApiBase {
 	public static function delFact($title, $property, $value, $type=null) {
 		$store = &smwfGetStore();
 		$subTitle = Title::newFromText($title);
-		$subject = new SMWDIWikiPage( $subTitle->getDbKey(), 0, null );
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
 		$data = $store->getSemanticData( $subject );
 
 		$propDI = SMWDIProperty::newFromUserLabel( $property );
@@ -325,7 +314,7 @@ class WTFactsAPI extends ApiBase {
 	public static function addFactsMultiple($title, $pvarray, $create_prop=true) {
 		$store = &smwfGetStore();
 		$subTitle = Title::newFromText($title);
-		$subject = new SMWDIWikiPage( $subTitle->getDbKey(), 0, null );
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
 		$data = $store->getSemanticData( $subject );
 
 		//$summaries = array();
@@ -411,6 +400,12 @@ class WTFactsAPI extends ApiBase {
 		return $newdata;
 	}
 
+	private static function getPValue($arr, $key) {
+		if(array_key_exists($key, $arr))
+			return $arr[$key];
+		return null;
+	}
+
 	private static function addFactsFromWorkflowPage($title, $subject, $data, $url) {
 		global $IP;
 		global $ontNS;
@@ -424,12 +419,13 @@ class WTFactsAPI extends ApiBase {
 		$parser->parse( $rdfuri );
 		$index = $parser->getSimpleIndex();
 		$pvals = $index[$objuri];
-		$processes = $pvals["http://openprovenance.org/model/opmo#hasProcess"];
-		$artifacts = $pvals["http://openprovenance.org/model/opmo#hasArtifact"];
-		$contributors = $pvals["http://purl.org/dc/terms/contributor"];
-		$timages = $pvals[$ontNS."hasTemplateDiagram"];
-		$tfile = $pvals[$ontNS."hasNativeSystemTemplate"][0];
-		$csys = $pvals[$ontNS."createdInWorkflowSystem"];
+		$processes = WTFactsAPI::getPValue($pvals, "http://openprovenance.org/model/opmo#hasProcess");
+		$artifacts = WTFactsAPI::getPValue($pvals, "http://openprovenance.org/model/opmo#hasArtifact");
+		$contributors = WTFactsAPI::getPValue($pvals, "http://purl.org/dc/terms/contributor");
+		$timages = WTFactsAPI::getPValue($pvals, $ontNS."hasTemplateDiagram");
+		$tfiles = WTFactsAPI::getPValue($pvals, $ontNS."hasNativeSystemTemplate");
+		$tfile = $tfiles ? $tfiles[0] : null;
+		$csys = WTFactsAPI::getPValue($pvals, $ontNS."createdInWorkflowSystem");
 
 		foreach($contributors as $uri) 
 			$data = WTFactsAPI::addPV($subject, $data, "WorkflowContributor", "_uri", $uri);
@@ -445,7 +441,7 @@ class WTFactsAPI extends ApiBase {
 		foreach($index as $key=>$val) {
 			#$templates = $val["http://www.opmw.org/ontology/template"];
 			#if($templates && in_array($objuri, $templates)) {
-				$types = $val["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
+				$types = WTFactsAPI::getPValue($val, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 				if(!$types) continue;
 				if(in_array($ontNS."WorkflowTemplateArtifact", $types)) {
 					if(in_array($ontNS."ParameterVariable", $types)) {

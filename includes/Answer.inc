@@ -36,7 +36,7 @@ class Answer extends WTBase {
 	function getTasks() {
 		# SMW Initialization 
 		$object = SMWDIWikiPage::newFromTitle( $this->title );
-		$ansProp = new SMWDIProperty('Answer');
+		$ansProp = SMWDIProperty::newFromUserLabel('Answer');
 	
 		$tasks = array();
 		$parentQs = smwfGetStore()->getPropertySubjects( $ansProp, $object );

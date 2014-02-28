@@ -34,7 +34,7 @@ class ExecutedWorkflow extends Workflow {
 		$subject = SMWDIWikiPage::newFromTitle( $this->title );
 
 		$url = "";
-		$wflowProp = new SMWDIProperty('ExecutedWorkflow');
+		$wflowProp = SMWDIProperty::newFromUserLabel('ExecutedWorkflow');
 		$wflows = smwfGetStore()->getPropertyValues( $subject, $wflowProp );
 		foreach($wflows as $wflow) {
 			$url = $this->getUri($wflow);
@@ -42,21 +42,21 @@ class ExecutedWorkflow extends Workflow {
 		}
 
 		if($url) {
-			$idsetProp = new SMWDIProperty('WorkflowInputDataArtifact');
-			$dsetProp = new SMWDIProperty('WorkflowDataArtifact');
-			$paramProp = new SMWDIProperty('WorkflowParamArtifact');
-			$procProp = new SMWDIProperty('WorkflowProcess');
-			$userProp = new SMWDIProperty('WorkflowUser');
-			$stimeProp = new SMWDIProperty('WorkflowStartTime');
-			$etimeProp = new SMWDIProperty('WorkflowEndTime');
-			$stProp = new SMWDIProperty('WorkflowStatus');
-			$exinProp = new SMWDIProperty('WorkflowExecutedIn');
-			$efileProp = new SMWDIProperty('WorkflowWingsExecution');
-			$tpageProp = new SMWDIProperty('WorkflowTemplate');
-			$rimageProp = new SMWDIProperty('WorkflowRunImage');
-			//$crinProp = new SMWDIProperty('WorkflowCreatedIn');
-			//$tfileProp = new SMWDIProperty('WorkflowWingsTemplate');
-			//$timageProp = new SMWDIProperty('WorkflowTemplateImage');
+			$idsetProp = SMWDIProperty::newFromUserLabel('WorkflowInputDataArtifact');
+			$dsetProp = SMWDIProperty::newFromUserLabel('WorkflowDataArtifact');
+			$paramProp = SMWDIProperty::newFromUserLabel('WorkflowParamArtifact');
+			$procProp = SMWDIProperty::newFromUserLabel('WorkflowProcess');
+			$userProp = SMWDIProperty::newFromUserLabel('WorkflowUser');
+			$stimeProp = SMWDIProperty::newFromUserLabel('WorkflowStartTime');
+			$etimeProp = SMWDIProperty::newFromUserLabel('WorkflowEndTime');
+			$stProp = SMWDIProperty::newFromUserLabel('WorkflowStatus');
+			$exinProp = SMWDIProperty::newFromUserLabel('WorkflowExecutedIn');
+			$efileProp = SMWDIProperty::newFromUserLabel('WorkflowWingsExecution');
+			$tpageProp = SMWDIProperty::newFromUserLabel('WorkflowTemplate');
+			$rimageProp = SMWDIProperty::newFromUserLabel('WorkflowRunImage');
+			//$crinProp = SMWDIProperty::newFromUserLabel('WorkflowCreatedIn');
+			//$tfileProp = SMWDIProperty::newFromUserLabel('WorkflowWingsTemplate');
+			//$timageProp = SMWDIProperty::newFromUserLabel('WorkflowTemplateImage');
 	
 			$idsets = smwfGetStore()->getPropertyValues( $subject, $idsetProp );
 			$dsets = smwfGetStore()->getPropertyValues( $subject, $dsetProp );
@@ -120,7 +120,7 @@ class ExecutedWorkflow extends Workflow {
 	function getVariableDatasetMapping($datasets, $tname) {
 		$dsVars = array();
 		$tname = preg_replace('/.+\//', '', $tname);
-		$varProp = new SMWDIProperty('DataUsedForVariable');
+		$varProp = SMWDIProperty::newFromUserLabel('DataUsedForVariable');
 		foreach($datasets as $dsitem) {
 			$ds = $dsitem->getDbKey();
 			$dstitle = Title::newFromText($ds);

@@ -20,11 +20,14 @@ $wgAutoloadClasses['Answer'] = $wgAbsDir . '/includes/Answer.inc';
 $wgAutoloadClasses['Workflow'] = $wgAbsDir . '/includes/Workflow.inc';
 $wgAutoloadClasses['ExecutedWorkflow'] = $wgAbsDir . '/includes/ExecutedWorkflow.inc';
 $wgAutoloadClasses['WTData'] = $wgAbsDir . '/includes/WTData.inc';
+$wgAutoloadClasses['WTUserProvidedData'] = $wgAbsDir . '/includes/WTUserProvidedData.inc';
+$wgAutoloadClasses['WTUserDescribedData'] = $wgAbsDir . '/includes/WTUserDescribedData.inc';
 $wgAutoloadClasses['WTComponent'] = $wgAbsDir . '/includes/WTComponent.inc';
 $wgAutoloadClasses['WTProperty'] = $wgAbsDir . '/includes/WTProperty.inc';
 $wgAutoloadClasses['WTMainPage'] = $wgAbsDir . '/includes/WTMainPage.inc';
 $wgAutoloadClasses['WTFactsAPI'] = $wgAbsDir . '/includes/WTFactsAPI.inc';
 $wgAutoloadClasses['WTSuggestAPI'] = $wgAbsDir . '/includes/WTSuggestAPI.inc';
+$wgAutoloadClasses['WTPerson'] = $wgAbsDir . '/includes/WTPerson.inc';
 
 $wgAPIModules['wtfacts'] = 'WTFactsAPI';
 $wgAPIModules['wtsuggest'] = 'WTSuggestAPI';
@@ -36,7 +39,7 @@ function WTRender (&$out, &$skin) {
 
 	$title = $out->getTitle();
 	$ns = $title->getNamespace();
-	if (($ns !== NS_MAIN) && ($ns !== SMW_NS_PROPERTY)) //SMW_NS_TYPE
+	if (($ns !== NS_MAIN && $ns !== NS_USER) && ($ns !== SMW_NS_PROPERTY)) //SMW_NS_TYPE
 		return false;
 
 	$action = $wgRequest->getText( 'action' );
@@ -68,8 +71,17 @@ function WTRender (&$out, &$skin) {
 	else if(in_array("Data", $cats)) {
 		$item = new WTData($title);
 	}
+	else if(in_array("UserProvidedData", $cats)) {
+		$item = new WTUserProvidedData($title);
+	}
+	else if(in_array("UserDescribedData", $cats)) {
+		$item = new WTUserDescribedData($title);
+	}
 	else if(in_array("Component", $cats)) {
 		$item = new WTComponent($title);
+	}
+	else if(in_array("Person", $cats) || ($ns == NS_USER)) {
+		$item = new WTPerson($title);
 	}
 	else {
 		$item = new WTBase($title);

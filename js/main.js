@@ -1,3 +1,7 @@
+var lpMsg = function(key) {
+	return key;
+};
+
 $j(function() {
 	//if (typeof smw_tooltipInit !== 'undefined') smw_tooltipInit();
 	//$j('#ca-edit').hide();
@@ -35,10 +39,25 @@ $j(function() {
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
 	}
+	else if(wtcategories["UserDescribedData"]) {
+		var wtdata = new WTUserDescribedData(wgPageName, allwtdetails, wtutil, wtapi);
+		var datadiv = $j("#main-data");
+		wtdata.display(datadiv);
+	}
+	else if(wtcategories["UserProvidedData"]) {
+		var wtdata = new WTUserProvidedData(wgPageName, allwtdetails, wtutil, wtapi);
+		var datadiv = $j("#main-data");
+		wtdata.display(datadiv);
+	}
 	else if(wtcategories["Component"]) {
 		var wtcomp = new WTComponent(wgPageName, allwtdetails, wtutil, wtapi);
 		var compdiv = $j("#main-comp");
 		wtcomp.display(compdiv);
+	}
+	else if(wtcategories["Person"] || wgNamespaceNumber == 2) {
+		var wtperson = new WTPerson(wgPageName, allwtdetails, wtutil, wtapi);
+		var persondiv = $j("#main-person");
+		wtperson.display(persondiv);
 	}
 	else {
 		var wtcatchooser = new WTCategoryChooser(wgPageName, wtutil, wtapi);
@@ -55,8 +74,3 @@ $j(function() {
 	wtcredits.display(creditsdiv);
 
 });
-
-var lpMsg = function(key) {
-	return key;
-};
-

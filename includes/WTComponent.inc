@@ -53,10 +53,10 @@ class WTComponent extends WTBase {
 		# SMW Initialization 
 		$subject = SMWDIWikiPage::newFromTitle( $this->title );
 
-		$idvProp = new SMWDIProperty('InputDataVariable');
-		$ipvProp = new SMWDIProperty('InputParamVariable');
-		$odvProp = new SMWDIProperty('OutputDataVariable');
-		$wcompProp = new SMWDIProperty('WorkflowProcess');
+		$idvProp = SMWDIProperty::newFromUserLabel('InputDataVariable');
+		$ipvProp = SMWDIProperty::newFromUserLabel('InputParamVariable');
+		$odvProp = SMWDIProperty::newFromUserLabel('OutputDataVariable');
+		$wcompProp = SMWDIProperty::newFromUserLabel('WorkflowProcess');
 	
 		$idvs = smwfGetStore()->getPropertyValues( $subject, $idvProp );
 		$ipvs = smwfGetStore()->getPropertyValues( $subject, $ipvProp );
