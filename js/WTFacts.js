@@ -95,6 +95,7 @@ WTFacts.prototype.getfactstable = function( item, data ) {
 	if(data) {
 		$j.each(data, function(prop, propdata) {
 			if($j.inArray(prop, me.blacklist) == -1) {
+				if(!propdata.values) return;
 				$j.each(propdata.values, function(key, val) {
 					var fact = {property:{name:prop, exists:propdata.exists}, value:val};
 					var tr = me.getfactrow(fact, item, data);

@@ -47,7 +47,8 @@ class WTSuggestAPI extends ApiBase {
 		$extra_suggestions = array();
 		$store = &smwfGetStore();
 
-		$propcounts = $store->getPropertiesSpecial();
+		$opts = new SMWRequestOptions();
+		$propcounts = $store->getPropertiesSpecial($opts)->getResults();
 		foreach($propcounts as $pcount) {
 			$prop = $pcount[0];
 			$count = $pcount[1];
@@ -68,7 +69,7 @@ class WTSuggestAPI extends ApiBase {
 			}
 		}
 
-		$unusedprops = $store->getUnusedPropertiesSpecial();
+		$unusedprops = $store->getUnusedPropertiesSpecial($opts)->getResults();
 		foreach($unusedprops as $prop) {
 			$plabel = $prop->getLabel();
 			if($plabel && 

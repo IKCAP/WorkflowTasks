@@ -85,6 +85,7 @@ class WTBase {
 		$out->addScriptFile( $wgDir . '/js/WTAnswers.js' );
 		$out->addScriptFile( $wgDir . '/js/WTTasks.js' );
 		$out->addScriptFile( $wgDir . '/js/WTData.js' );
+		$out->addScriptFile( $wgDir . '/js/WTDataColumns.js' );
 		$out->addScriptFile( $wgDir . '/js/WTUserProvidedData.js' );
 		$out->addScriptFile( $wgDir . '/js/WTUserDescribedData.js' );
 		$out->addScriptFile( $wgDir . '/js/WTComponent.js' );

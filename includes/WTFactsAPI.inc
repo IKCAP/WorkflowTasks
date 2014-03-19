@@ -8,7 +8,6 @@
  */
 
 global $ontNS;
-//$ontNS = "http://wings.isi.edu/ontology/opmv/";
 $ontNS = "http://www.opmw.org/ontology/";
 
 class WTFactsAPI extends ApiBase {
@@ -97,7 +96,7 @@ class WTFactsAPI extends ApiBase {
 		$text = WTFactsAPI::getDVText($dv);
 		$val = WTFactsAPI::getDIText($di);
 		$type = get_class($di);
-		$type = str_replace("SMWDI","", $type);
+		$type = str_replace("SMW\DI","", $type);
 		$key = ($type=="WikiPage") ? $di->getDbKey() : "";
 		$exists = ($type=="WikiPage") ? $di->getTitle()->exists() : "";
 		return array("val"=>$val, "text"=>$text, "type"=>$type, "key"=>$key, "exists"=>$exists);
@@ -165,6 +164,7 @@ class WTFactsAPI extends ApiBase {
 				"WorkflowUser", "WorkflowRunImage", "WorkflowTemplateImage", "DataHasLocation",
 				"DataHasPubbyLink", "DataHasType", "DataUsedForVariable");
 		$facts = array();
+		$subobjects = array();
 		if(!$data) {
 			$store = &smwfGetStore();
 			$titObj = Title::newFromText($title);
@@ -175,6 +175,14 @@ class WTFactsAPI extends ApiBase {
 		$props = $data->getProperties();
 		foreach($props as $prop) {
 			$pkey = $prop->getKey();
+			if($pkey == "_SOBJ") {
+				$subobjs = $data->getPropertyValues($prop);
+				foreach($subobjs as $subobj) {
+					$sofacts = WTFactsAPI::getFacts($title."#".$subobj->getSubobjectName());
+					if($sofacts)
+						$subobjects[$subobj->getSubobjectName()] = $sofacts[1];
+				}
+			}
 			if($pkey[0] == "_") continue;
 			if(in_array($prop->getLabel(), $blacklist)) continue;
 			$ptitle = Title::newFromText("Property:".$pkey);
@@ -189,8 +197,8 @@ class WTFactsAPI extends ApiBase {
 				$facts[$prop->getLabel()] = array("exists"=>$propexists, "values"=>$vals);
 			}
 		}
-
 		$facts = WTFactsAPI::setFactAuthors($title, $facts, $data);
+		$facts['subobjects'] = $subobjects;
 		return array( "Success", $facts, "Facts for $title");
 	}
 
