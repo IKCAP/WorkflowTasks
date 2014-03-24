@@ -43,11 +43,15 @@ $j(function() {
 		var wtdata = new WTUserDescribedData(wgPageName, allwtdetails, wtutil, wtapi);
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
+		datadiv.append('<br/>');
+		var wtdatacols = new WTDataColumns(wgPageName, allwtfacts, wtutil, wtapi);
+		wtdatacols.display(datadiv);
 	}
 	else if(wtcategories["UserProvidedData"]) {
 		var wtdata = new WTUserProvidedData(wgPageName, allwtdetails, wtutil, wtapi);
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
+		datadiv.append('<br/>');
 		var wtdatacols = new WTDataColumns(wgPageName, allwtfacts, wtutil, wtapi);
 		wtdatacols.display(datadiv);
 	}
