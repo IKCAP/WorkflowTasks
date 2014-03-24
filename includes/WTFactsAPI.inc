@@ -680,7 +680,7 @@ class WTFactsAPI extends ApiBase {
 				}
 				else if($purl == $ontNS."hasFileName")
 					$dsfile = preg_replace("/.+(#|\/)/", "", $vals[0]);
-				else if(strpos($purl, "wasGeneratedBy_") !== FALSE) 
+				else if(strpos($purl, "wasGeneratedByAs_") !== FALSE) 
 					continue;
 				else if(!in_array($purl, $import_blacklist)) {
 					$pname = preg_replace("/.+(#|\/)/", "", $purl);

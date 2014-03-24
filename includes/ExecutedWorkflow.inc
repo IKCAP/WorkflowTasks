@@ -128,11 +128,8 @@ class ExecutedWorkflow extends Workflow {
 			$vars = smwfGetStore()->getPropertyValues( $dsubj, $varProp );
 			foreach($vars as $varitem) {
 				$var = $varitem->getDbKey();
-				if(preg_match("/^${tname}_/", $var)) {
-					$var = preg_replace("/^${tname}_/", "", $var);
-					if(!array_key_exists($var, $dsVars)) $dsVars[$var] = array();
-					$dsVars[$var][] = $ds;
-				}
+				if(!array_key_exists($var, $dsVars)) $dsVars[$var] = array();
+				$dsVars[$var][] = $ds;
 			}
 		}
 		return $dsVars;
