@@ -14,14 +14,15 @@ WTDataColumns.prototype.appendLinkItem = function( list, link, name ) {
 };
 
 WTDataColumns.prototype.getListItem = function( list, col ) {
-	var col_li = $j('<li></li>');
+	var col_li = $j('<li class="column"></li>');
 
 	var me = this;
 	var delhref = $j('<a class="lodlink">[x]</a>');
 	// Delete [x] link's event handler
 	delhref.click( function(e) {
 		list.mask(lpMsg('Removing Column..'));
-		me.api.removeColumn( me.title, col, function(resp) {
+		var newlist = me.createNewList(list, null, col.key);
+		me.api.removeDataColumn( me.title, col.key, newlist, function(resp) {
 			list.unmask();
 			if(!resp || !resp.wtfacts) return;
 			if(resp.wtfacts.result == 'Success') {
@@ -33,30 +34,87 @@ WTDataColumns.prototype.getListItem = function( list, col ) {
 	// Move [^] link's event handler
 	movehref.click( function(e) {
 		list.mask(lpMsg('Moving column up..'));
-		me.api.moveColumnUp( me.title, col, function(resp) {
+		var newlist = me.createNewList(list, null, null, col.key);
+		me.api.moveDataColumn( me.title, newlist, function(resp) {
 			list.unmask();
 			if(!resp || !resp.wtfacts) return;
 			if(resp.wtfacts.result == 'Success') {
-				col_li.remove();
+				list.data('data', resp.wtfacts.facts);
+				$("li.column").remove();
+				me.fillList(list);
 			}
 		});
 	});
+	var valcls = col.exists ? '' : 'new';
+	var valentity = "<a href='"+col.key+"' class='"+valcls+"'>"+col.val.replace(/_/g,' ')+"</a>";
 	col_li.append(delhref).append(' ').append(movehref).append(' ');
-	col_li.append('<a href="'+col+'"/>'+col+'</a>');
+	col_li.append(valentity);
 	return col_li;
 };
 
-WTDataColumns.prototype.getList = function( item, data ) {
-	var list = $j('<ul></ul>');
+WTDataColumns.prototype.upperCaseFirst = function(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+};
 
+WTDataColumns.prototype.fillList = function( list ) {
+	var data = list.data('data');
+	var sobjects = {};
+	for(var sobj in data.subobjects) 
+		sobjects[this.upperCaseFirst(sobj)] = data.subobjects[sobj];
+	var me = this;
+	if(data && data.Columns && data.Columns.values) {
+		var cols = data.Columns.values.sort(function(a, b) {
+			var ia = parseInt(sobjects[a.val].Index.values[0].val);
+			var ib = parseInt(sobjects[b.val].Index.values[0].val);
+			return ia > ib;
+		});
+		for(var i=cols.length-1; i>=0; i--) 
+			list.prepend(this.getListItem(list, cols[i]));
+	}
+};
+
+WTDataColumns.prototype.createNewList = function(list, addcol, delcol, moveupcol) {
+	var newlist = [];
+	var curlist = list.data('data').Columns;
+	if(curlist) {
+		for(var i=0; i<curlist.values.length; i++) {
+			if(curlist.values[i].key == moveupcol && i>0) {
+				var tmp = newlist[i-1];
+				newlist[i-1] = moveupcol;
+				newlist[i] = tmp;
+			}
+			else if(curlist.values[i].key != delcol)
+				newlist.push(curlist.values[i].key);
+		}
+	}
+	if(addcol)
+		newlist.push(this.upperCaseFirst(addcol));
+	return newlist;
+};
+
+WTDataColumns.prototype.getList = function( item, data ) {
 	var me = this;
 
 	var ival = $j('<input style="width:30%" type="text" />');
 	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+	ival.autocomplete({
+		api: me.api,
+		position: 'columntype',
+		minChars:1,
+		maxHeight:200,
+		deferRequestBy:300,
+		width:'100%',
+		zIndex:9999,
+		onSelect: function(value, data) { ival.data('val', data); }
+	});
 
 	var addcol_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
 	addcol_li.append(ival).append(igo).append(icancel).hide();
+
+	var list = $j('<ul></ul>');
+	list.data('data', data);
+	this.fillList(list);
 	list.append(addcol_li);
 
 	icancel.click(function( e ) {
@@ -73,21 +131,17 @@ WTDataColumns.prototype.getList = function( item, data ) {
 		ival.data('val','');
 
 		item.mask(lpMsg('Adding Data Column.. Please wait..'));
-		me.api.addDataColumn( me.title, val, function(response) {
+		var newlist = me.createNewList(list, val);
+		me.api.addDataColumn( me.title, val, newlist, function(response) {
 			item.unmask();
-			if(!response || !response.wtfacts || !response.wtfacts.newdetails) return; 
+			if(!response || !response.wtfacts) return;
 			if(response.wtfacts.result == 'Success') {
-				var data = response.wtfacts.newdetails;
-				var col_li = me.getListItem(item, data.Workflow);
-				me.addcol_link.css('display', 'none');
-				list.append(col_li);
+				list.data('data', response.wtfacts.facts);
+				$("li.column").remove();
+				me.fillList(list);
 			}
 		});
 	});
-
-	if(data && data.Workflow) {
-		list.append(me.getListItem(item, data.Workflow));
-	}
 
 	item.data('list', list);
 	return list;
@@ -105,10 +159,10 @@ WTDataColumns.prototype.display = function( item ) {
 
 	me.addcol_link = $j('<a class="x-small lodbutton">' + lpMsg('Add Data Column') + '</a>');
 	me.addcol_link.click(function( e ) {
-		list.find('li:first').css('display', '');
+		list.find('li:last').css('display', '');
 	});
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Data Description');
+	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Data Columns');
 	var toolbar = $j('<div></div>').append(header).append(me.addcol_link);
 	//toolbar.append(me.util.getHelpButton('add_col')));
 	item.append(toolbar);

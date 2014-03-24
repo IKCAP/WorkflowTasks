@@ -56,7 +56,7 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 	return tr;
 };
 
-WTFacts.prototype.blacklist = ['SubTask', 'Answer', 'Answered', 'Workflow', 'DataLocation', 'DataWikiLocation', 'DataExtractedFrom'];
+WTFacts.prototype.blacklist = ['SubTask', 'Answer', 'Answered', 'Workflow', 'DataLocation', 'DataWikiLocation', 'DataExtractedFrom', 'Columns'];
 
 WTFacts.prototype.getfactstable = function( item, data ) {
 	var table = $j('<table id="facts-table" class="lod-table"></table>');

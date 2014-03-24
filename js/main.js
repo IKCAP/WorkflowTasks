@@ -48,7 +48,7 @@ $j(function() {
 		var wtdata = new WTUserProvidedData(wgPageName, allwtdetails, wtutil, wtapi);
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
-		var wtdatacols = new WTDataColumns(wgPageName, allwtdetails, wtutil, wtapi);
+		var wtdatacols = new WTDataColumns(wgPageName, allwtfacts, wtutil, wtapi);
 		wtdatacols.display(datadiv);
 	}
 	else if(wtcategories["Component"]) {

@@ -32,23 +32,28 @@ class WTFactsAPI extends ApiBase {
 
 		$property = $params['property'];
 		$value = $params['value'];
+		$subobjs = $params['subobjectsjson'] ? json_decode($params['subobjectsjson'], true) : null;
 		$type = $params['type'];
 
 		if ($op === 'newpage') {
 			$category = $params['category'];
 			if (is_null($category)) $this->dieUsage('Must specify category', 'unspecified_category');
 			list($error, $text) = WTFactsAPI::createPageWithCategory($title, $category);
+		}
+		else if ($op === 'updatesubobjects') {
+			list($error, $text, $data) = WTFactsAPI::updateSubobjects($title, $subobjs);
+			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
 		} elseif ($op === 'show') {
 			list($error, $this->facts, $text) = WTFactsAPI::getFacts($title);
 		} elseif ($op === 'add') {
 			if (is_null($property)) $this->dieUsage('Must specify property', 'unspecified_property');
 			if (is_null($value)) $this->dieUsage('Must specify value', 'unspecified_value');
-			list($error, $text, $data, $this->newdetails) = WTFactsAPI::addFact($title, $property, $value, $type);
+			list($error, $text, $data, $this->newdetails) = WTFactsAPI::addFact($title, $property, $value, $type, true, $subobjs);
 			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
 		} elseif ($op === 'del') {
 			if (is_null($property)) $this->dieUsage('Must specify property', 'unspecified_property');
 			if (is_null($value)) $this->dieUsage('Must specify value', 'unspecified_value');
-			list($error, $text, $data) = WTFactsAPI::delFact($title, $property, $value, $type);
+			list($error, $text, $data) = WTFactsAPI::delFact($title, $property, $value, $type, $subobjs);
 			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
 		}
 		
@@ -144,8 +149,8 @@ class WTFactsAPI extends ApiBase {
 				//$val = preg_replace("/^mailto:/i", "", $val);
 				$val = preg_replace("/\/$/", "", $val);
 				$val = preg_replace("/ /", "_", $val);
-				$author = $auths["$sprop||$val"];
-				$valobj["author"] = $author ? $author: 'Anonymous';
+				$author = isset($auths["$sprop||$val"]) ? $auths["$sprop||$val"] : "Anonymous";
+				$valobj["author"] = $author;
 				$newvals[] = $valobj;
 			}
 			$newfacts[$prop] = array("exists"=>$pd["exists"], "values"=>$newvals);
@@ -163,26 +168,28 @@ class WTFactsAPI extends ApiBase {
 				"WorkflowTemplate", "WorkflowWingsTemplate", "WorkflowWingsExecution",
 				"WorkflowUser", "WorkflowRunImage", "WorkflowTemplateImage", "DataHasLocation",
 				"DataHasPubbyLink", "DataHasType", "DataUsedForVariable");
-		$facts = array();
-		$subobjects = array();
 		if(!$data) {
-			$store = &smwfGetStore();
 			$titObj = Title::newFromText($title);
 			$subject = SMWDIWikiPage::newFromTitle( $titObj );
-			$data = $store->getSemanticData( $subject );
+			$data = WTFactsAPI::getSemanticData( $subject );
 		}
 
+		$subobjects = array();
+		$subdatas = $data->getSubSemanticData();
+		if($subdatas) {
+			foreach($subdatas as $subdata) {
+				$subname = $subdata->getSubject()->getSubobjectName();
+				$subid = "$title#$subname";
+				$sofacts = WTFactsAPI::getFacts($subid, $subdata);
+				if($sofacts)
+					$subobjects[$subname] = $sofacts[1];
+			}
+		}
+
+		$facts = array();
 		$props = $data->getProperties();
 		foreach($props as $prop) {
 			$pkey = $prop->getKey();
-			if($pkey == "_SOBJ") {
-				$subobjs = $data->getPropertyValues($prop);
-				foreach($subobjs as $subobj) {
-					$sofacts = WTFactsAPI::getFacts($title."#".$subobj->getSubobjectName());
-					if($sofacts)
-						$subobjects[$subobj->getSubobjectName()] = $sofacts[1];
-				}
-			}
 			if($pkey[0] == "_") continue;
 			if(in_array($prop->getLabel(), $blacklist)) continue;
 			$ptitle = Title::newFromText("Property:".$pkey);
@@ -202,7 +209,39 @@ class WTFactsAPI extends ApiBase {
 		return array( "Success", $facts, "Facts for $title");
 	}
 
-	public static function addFact($title, $property, $value, $type=null, $create_prop=true) {
+	public static function processSubobjects($subobjs, $data) {
+		if(!$subobjs) return;
+		$title = $data->getSubject()->getDBKey();
+		foreach($subobjs as $subobj) {
+			$subid = $title."#".$subobj['id'];
+			$subdata = $data->findSubSemanticData($subobj['id']);
+			if($subdata) {
+				$data->removeSubSemanticData($subdata);
+			}
+			$subsubject = SMWDIWikiPage::newFromTitle(Title::newFromText($subid));
+			$subdata = new SMWSemanticData($subsubject);
+			foreach($subobj['properties'] as $subprop=>$subval) {
+				$subpropDI = SMWDIProperty::newFromUserLabel( $subprop );
+				$subvalDV = SMWDataValueFactory::newPropertyObjectValue( $subpropDI, $subval );
+				$subvalDI = $subvalDV->getDataItem();
+				WTFactsAPI::addPropValToData($subsubject, $subdata, $subpropDI, $subvalDI);
+			}
+			$data->addSubSemanticData($subdata);
+		}
+	}
+
+	public static function updateSubobjects($title, $subobjs) {
+		$subTitle = Title::newFromText($title);
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
+		$data = WTFactsAPI::getSemanticData( $subject );
+		// Process subobject data if present
+		WTFactsAPI::processSubobjects($subobjs, $data);
+		$summary = "Updated Subobjects";
+		$ret = WTFactsAPI::updateWiki($title, $summary, $data);
+		return $ret;
+	}
+
+	public static function addFact($title, $property, $value, $type=null, $create_prop=true, $subobjs=null) {
 		$ptitle = Title::newFromText("Property:".$property);
 		if(!$ptitle->exists() && $create_prop) {
 			$type = WTFactsAPI::guessValueType($value);
@@ -211,16 +250,18 @@ class WTFactsAPI extends ApiBase {
 			WTFactsAPI::createWikiPage("Property:$property", $text, $summary);
 		}
 
-		$store = &smwfGetStore();
 		$subTitle = Title::newFromText($title);
 		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
-		$data = $store->getSemanticData( $subject );
+		$data = WTFactsAPI::getSemanticData( $subject );
 
 		$propDI = SMWDIProperty::newFromUserLabel( $property );
 		$valDV = SMWDataValueFactory::newPropertyObjectValue( $propDI, $value );
 		$valDI = $valDV->getDataItem();
 
 		$data = WTFactsAPI::addPropValToData($subject, $data, $propDI, $valDI);
+
+		// Process subobject data if present
+		WTFactsAPI::processSubobjects($subobjs, $data);
 
 		if($property == "Workflow") {
 			$data = WTFactsAPI::addFactsFromWorkflowPage($title, $subject, $data, $value);
@@ -261,15 +302,17 @@ class WTFactsAPI extends ApiBase {
 				$page = new WTUserProvidedData(Title::newFromText($title));
 				$ret[] = $page->getPageDetails();
 			}
+			else if($property == "Columns") {
+				WTFactsAPI::createWikiPage($value, "[[Category:ColumnType]]", "Autocreating Column Page");
+			}
 		}
 		return $ret;
 	}
 
-	public static function delFact($title, $property, $value, $type=null) {
-		$store = &smwfGetStore();
+	public static function delFact($title, $property, $value, $type=null, $subobjs=null) {
 		$subTitle = Title::newFromText($title);
 		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
-		$data = $store->getSemanticData( $subject );
+		$data = WTFactsAPI::getSemanticData( $subject );
 
 		$propDI = SMWDIProperty::newFromUserLabel( $property );
 		$valDV = SMWDataValueFactory::newPropertyObjectValue( $propDI, $value );
@@ -314,16 +357,18 @@ class WTFactsAPI extends ApiBase {
 		}
 		else {
 			$data = WTFactsAPI::removePropValFromData($subject, $data, $propDI, $valDI);
+			// Process subobject data if present
+			WTFactsAPI::processSubobjects($subobjs, $data);
+
 			$summary = "Deleted PropertyValue: $property = $value";
 			return WTFactsAPI::updateWiki($title, $summary, $data);
 		}
 	}
 
 	public static function addFactsMultiple($title, $pvarray, $create_prop=true) {
-		$store = &smwfGetStore();
 		$subTitle = Title::newFromText($title);
 		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
-		$data = $store->getSemanticData( $subject );
+		$data = WTFactsAPI::getSemanticData( $subject );
 
 		//$summaries = array();
 		foreach($pvarray as $pv) {
@@ -357,6 +402,36 @@ class WTFactsAPI extends ApiBase {
 
 
 	/* --- private methods --- */
+
+	private static function getSemanticData($subject) {
+		$store = &smwfGetStore();
+		$data = $store->getSemanticData($subject);
+		WTFactsAPI::fetchSubobjectData($data);
+		return $data;
+	}
+
+	private static function fetchSubobjectData($data) {
+		$store = &smwfGetStore();
+		$title = $data->getSubject()->getDBKey();
+		foreach ( $data->getProperties() as $property ) {
+			$pkey = $property->getKey();
+			if($pkey == "_SOBJ") {
+				$subobjs = $data->getPropertyValues($property);
+				foreach($subobjs as $subobj) {
+					$subid = $title."#".$subobj->getSubobjectName();
+					$subdata = $data->findSubSemanticData($subid);
+					if(!$subdata || empty($subdata)) {
+						$subtitObj = Title::newFromText($subid);
+						$subsubject = SMWDIWikiPage::newFromTitle( $subtitObj );
+						$subdata = $store->getSemanticData($subsubject);
+						$data->addSubSemanticData($subdata);
+					}
+				}
+			}
+		}
+		return $data;
+	}
+
 	private static function addPropValToData($subject, $data, $propDI, $valDI) {
 		$valDI = WTFactsAPI::fixDI($valDI);
 		/*$newdata = new SMWSemanticData($subject);
@@ -605,7 +680,7 @@ class WTFactsAPI extends ApiBase {
 				}
 				else if($purl == $ontNS."hasFileName")
 					$dsfile = preg_replace("/.+(#|\/)/", "", $vals[0]);
-				else if(strpos($purl, "ontology/wasGeneratedBy_") !== FALSE) 
+				else if(strpos($purl, "wasGeneratedBy_") !== FALSE) 
 					continue;
 				else if(!in_array($purl, $import_blacklist)) {
 					$pname = preg_replace("/.+(#|\/)/", "", $purl);
@@ -703,7 +778,7 @@ class WTFactsAPI extends ApiBase {
 		$doc = new POMPage($text);
 
 		$facts = null;
-		$setobj = array_key_exists('#set', $doc->templates) ? $doc->templates['#set'] : null;
+		$setobj = array_key_exists('#set', $doc->templates) ? $doc->templates['#set'] : array();
 		if($setobj && is_array($setobj)) {
 			$facts = $setobj[0];
 			while($facts->getParametersCount())
@@ -712,24 +787,51 @@ class WTFactsAPI extends ApiBase {
 		else {
 			$facts = new POMTemplate("{{#set:}}");
 			$doc->addChild(new POMTextNode("\n"));
-			$doc->addChild(new POMComment("<!-- Add any wiki Text above this Line -->"));
+			$doc->addChild(new POMTextNode("<!-- Add any wiki Text above this Line -->"));
 			$doc->addChild(new POMTextNode("\n"));
-			$doc->addChild(new POMComment("<!-- Do NOT Edit below this Line -->"));
+			$doc->addChild(new POMTextNode("<!-- Do NOT Edit below this Line -->"));
 			$doc->addChild(new POMTextNode("\n"));
 			$doc->addChild($facts);
 			$doc->addChild(new POMTextNode("\n"));
 		}
 
+		// Write property-values to POMPage
 		foreach ( $data->getProperties() as $property ) {
-			$values = $data->getPropertyValues( $property );
 			$propkey = $property->getKey();
 			if($propkey[0] == "_") continue;
+			$values = $data->getPropertyValues( $property );
 			//print "$propkey = ".implode(array_map("WTFactsAPI::getDIText", $values), ",")."\n";
 			foreach ( array_unique($values, SORT_REGULAR) as $dataItem ) {
-				$facts->addParameter( "\n  ".$property->getLabel(), WTFactsAPI::getDIText($dataItem)."  " );
+				$facts->addParameter( $property->getLabel(), WTFactsAPI::getDIText($dataItem) );
 			}
 		}
 
+		// Write subobjects to POMPage
+		$subobjpoms = array_key_exists('#subobject', $doc->templates) ? $doc->templates['#subobject'] : array();
+		$nchildren = array();
+		for($i=0; $i<sizeof($doc->children);$i++) {
+			if(!in_array($doc->children[$i], $subobjpoms)) 
+				$nchildren[] = $doc->children[$i];
+		}
+		$doc->children = $nchildren;
+
+		$subdatas = $data->getSubSemanticData();
+		foreach($subdatas as $subdata) {
+			$subname = $subdata->getSubject()->getSubobjectName();
+			$subobjpom = new POMTemplate("{{#subobject:$subname}}");
+			foreach ( $subdata->getProperties() as $subprop ) {
+				$subpkey = $subprop->getKey();
+				if($subpkey[0] == "_") continue;
+				$subvalues = $subdata->getPropertyValues( $subprop );
+				//print "$subname: $subpkey = ".implode(array_map("WTFactsAPI::getDIText", $subvalues), ",")."\n";
+				foreach ( array_unique($subvalues, SORT_REGULAR) as $subdataItem ) {
+					$subobjpom->setParameter( $subprop->getLabel(), WTFactsAPI::getDIText($subdataItem) );
+				}
+			}
+			$doc->addChild($subobjpom);
+		}
+
+		// Create new wiki text from POMPage
 		$newtext = $doc->asString();
 		//print "$newtext\n";
 		if(strpos($newtext, "{{#set}}") !== false) {
@@ -801,16 +903,19 @@ class WTFactsAPI extends ApiBase {
 			'category' => null,
 			'property' => null,
 			'value' => null,
+			'subobjectsjson' => null,
 			'type' => null
 		);
 	}
 
 	protected function getParamDescription() {
 		return array (
-			'operation' => 'Operation to be performed. One of newpage, show, add or del',
+			'operation' => 'Operation to be performed. One of show, add, del, newpage, updatesubobjects',
 			'title' => 'Title of the page (required)',
 			'property' => 'Property of the page (required for add, del)',
 			'value' => 'Value of the page Property (required for add)',
+			'subobjectsjson' => 'Json encoded Subobjects information to add '.
+								'[{id:<subobjname>, properties:[{<propname>:<propval>}..] ]',
 			'type' => 'Type of the Property value. One of page, number, boolean (optional for add)',
 			'category' => 'Category of the new page (required for newpage)'
 		);

@@ -26,6 +26,8 @@ class WTSuggestAPI extends ApiBase {
 		$suggestions = array();
 		if ($type === 'property') 
 			list($error, $suggestions, $text) = WTSuggestAPI::getProperties($search);
+		else if ($type === 'columntype') 
+			list($error, $suggestions, $text) = WTSuggestAPI::getPages($search, "ColumnType", "");
 		
 		if ($error === '')
 			$error = 'UnknownType';
@@ -39,6 +41,28 @@ class WTSuggestAPI extends ApiBase {
 		}
 		$result['suggestions'] = $suggestions;
 		$this->getResult()->addValue(null, 'wtsuggest', $result);
+	}
+
+	public static function getPages($search, $category, $querystr) {
+		$suggestions = array();
+		$main_suggestions = array();
+		$extra_suggestions = array();
+		$store = &smwfGetStore();
+
+		$subTitle = Title::newFromText("Category:$category");
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
+		$query = new SMWQuery(new SMWClassDescription($subject));
+		$query->setQueryString($querystr);
+		$result = $store->getQueryResult($query);
+		foreach($result->getResults() as $page) {
+			$plabel = $page->getDBKey();
+			if(preg_match("/^$search/i", $plabel))
+				$main_suggestions[] = array("exists"=>true, "label"=>$plabel);
+			else if(preg_match("/$search/i", $plabel))
+				$extra_suggestions[] = array("exists"=>true, "label"=>$plabel);
+		}
+		$suggestions = array_merge($main_suggestions, $extra_suggestions);
+		return array( "Success", $suggestions, "Properties matching $search");
 	}
 
 	public static function getProperties($search) {
