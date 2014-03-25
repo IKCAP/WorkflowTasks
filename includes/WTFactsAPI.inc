@@ -303,7 +303,7 @@ class WTFactsAPI extends ApiBase {
 				$ret[] = $page->getPageDetails();
 			}
 			else if($property == "Columns") {
-				WTFactsAPI::createWikiPage($value, "[[Category:ColumnType]]", "Autocreating Column Page");
+				WTFactsAPI::createWikiPage($value, "[[Category:DataType]]", "Autocreating Column Datatype Page");
 			}
 		}
 		return $ret;

@@ -27,7 +27,7 @@ class WTSuggestAPI extends ApiBase {
 		if ($type === 'property') 
 			list($error, $suggestions, $text) = WTSuggestAPI::getProperties($search);
 		else if ($type === 'columntype') 
-			list($error, $suggestions, $text) = WTSuggestAPI::getPages($search, "ColumnType", "");
+			list($error, $suggestions, $text) = WTSuggestAPI::getPages($search, "DataType", "");
 		
 		if ($error === '')
 			$error = 'UnknownType';
