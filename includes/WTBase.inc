@@ -107,7 +107,7 @@ class WTBase {
 		$out->addHTML("<script>var allwtfacts = ".json_encode($facts).";</script>\n");
 		$out->addHTML("<script>var allwtdetails = ".json_encode($details).";</script>\n");
 		$out->addHTML("<script>var wtallcategories = ['Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object', 'DataType', 'Thing'];</script>\n");
-		//$out->addHTML("<script>var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person'];</script>\n");
+		//$out->addHTML("<script>var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person', 'DataType', 'Thing'];</script>\n");
 		$out->addHTML("<script>var wtcategories = [];</script>\n");
 		$cats = $out->getCategories();
 		foreach($cats as $cat) 
