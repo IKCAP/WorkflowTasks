@@ -102,6 +102,7 @@ class WTFactsAPI extends ApiBase {
 		$val = WTFactsAPI::getDIText($di);
 		$type = get_class($di);
 		$type = str_replace("SMW\DI","", $type);
+		$type = str_replace("SMWDI","", $type);
 		$key = ($type=="WikiPage") ? $di->getDbKey() : "";
 		$exists = ($type=="WikiPage") ? $di->getTitle()->exists() : "";
 		return array("val"=>$val, "text"=>$text, "type"=>$type, "key"=>$key, "exists"=>$exists);
