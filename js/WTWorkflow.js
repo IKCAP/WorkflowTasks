@@ -40,25 +40,28 @@ WTWorkflow.prototype.getListItem = function( list, wflow ) {
 	wflow_li.append(delhref).append(' ');
 	
 	var wfname = wflow.url.replace(/.+\//, '');
-	wfname = wfname.replace(/_/g, ' ');
+	//wfname = wfname.replace(/_/g, ' ');
 	var wflink = wflow.url.replace(/\s/g,'_');
 	wflow_li.append($j('<a href="'+wflink+'"></a>').append(wfname));
 
 	var dvars = $j('<ul></ul>');
 	$j.each(wflow.datavariables, function(i, v) {
-		var vname = v.replace(wfname+'_', '');
+		var vname = v.replace(/.+\//, '');
+		vname = vname.replace(wfname+'_', '');
 		me.appendLinkItem(dvars, v, vname);
 	});
 
 	var pvars = $j('<ul></ul>');
 	$j.each(wflow.paramvariables, function(i, v) {
-		var vname = v.replace(wfname+'_', '');
+		var vname = v.replace(/.+\//, '');
+		vname = vname.replace(wfname+'_', '');
 		me.appendLinkItem(pvars, v, vname);
 	});
 
 	var procs = $j('<ul></ul>');
 	$j.each(wflow.processes, function(i, p) {
-		var pname = p.replace(wfname+'_', '');
+		var pname = p.replace(/.+\//, '');
+		pname = pname.replace(wfname+'_', '');
 		me.appendLinkItem(procs, p, pname);
 	});
 

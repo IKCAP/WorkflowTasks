@@ -494,6 +494,7 @@ class WTFactsAPI extends ApiBase {
 		global $ontNS;
 		include_once( "$IP/lib/arc2/ARC2.php" );
 
+		$url = preg_replace("/http:\/\/opmw/", "http://www.opmw", $url);
 		$url = preg_replace("/export\/resource/", "export/page/resource", $url);
 		$objuri = preg_replace("/page\/resource/", "resource", $url);
 		$rdfuri = preg_replace("/page\/resource/", "data/resource", $url);
@@ -511,14 +512,14 @@ class WTFactsAPI extends ApiBase {
 		$csys = WTFactsAPI::getPValue($pvals, $ontNS."createdInWorkflowSystem");
 
 		foreach($contributors as $uri) 
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowContributor", "_uri", $uri);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowContributor", "_uri", $uri, true);
 		foreach ($timages as $timage) 
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplateImage", "_uri", $timage);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplateImage", "_uri", $timage, true);
 		if($tfile)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowWingsTemplate", "_uri", $tfile);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowWingsTemplate", "_uri", $tfile, true);
 		if($csys) 
 			foreach ($csys as $cs) 
-				$data = WTFactsAPI::addPV($subject, $data, "WorkflowCreatedIn", "_uri", $cs);
+				$data = WTFactsAPI::addPV($subject, $data, "WorkflowCreatedIn", "_uri", $cs, true);
 
 		//print_r($index);
 		foreach($index as $key=>$val) {
@@ -528,16 +529,16 @@ class WTFactsAPI extends ApiBase {
 				if(!$types) continue;
 				if(in_array($ontNS."WorkflowTemplateArtifact", $types)) {
 					if(in_array($ontNS."ParameterVariable", $types)) {
-						$data = WTFactsAPI::addPV($subject, $data, "WorkflowParamVariable", "_uri", $key);
+						$data = WTFactsAPI::addPV($subject, $data, "WorkflowParamVariable", "_uri", $key, true);
 					}
 					else { //if(in_array($ontNS."DataVariable", $types))
-						$data = WTFactsAPI::addPV($subject, $data, "WorkflowDataVariable", "_uri", $key);
+						$data = WTFactsAPI::addPV($subject, $data, "WorkflowDataVariable", "_uri", $key, true);
 					}
 					//print "Artifact: $key\n";
 				}
 				else if(in_array($ontNS."WorkflowTemplateProcess", $types)) {
 					//print "Process: $key\n";
-					$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcessVariable", "_uri", $key);
+					$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcessVariable", "_uri", $key, true);
 				}
 			#}
 		}
@@ -551,6 +552,7 @@ class WTFactsAPI extends ApiBase {
 
 		set_time_limit (0);
 
+		$url = preg_replace("/http:\/\/opmw/", "http://www.opmw", $url);
 		$url = preg_replace("/export\/resource/", "export/page/resource", $url);
 		$objuri = preg_replace("/page\/resource/", "resource", $url);
 		$rdfuri = preg_replace("/page\/resource/", "data/resource", $url);
@@ -574,24 +576,24 @@ class WTFactsAPI extends ApiBase {
 		set_time_limit (0);
 
 		if($startTime)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowStartTime", "_num", strtotime($startTime));
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowStartTime", "_num", strtotime($startTime), true);
 		if($endTime)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowEndTime", "_num", strtotime($endTime));
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowEndTime", "_num", strtotime($endTime), true);
 		if($status)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowStatus", "_str", $status);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowStatus", "_str", $status, true);
 		if($efile)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowWingsExecution", "_uri", $efile);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowWingsExecution", "_uri", $efile, true);
 		if($tpage)
-			$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplate", "_uri", $tpage);
+			$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplate", "_uri", $tpage, true);
 		if($esys)
 			foreach ($esys as $es) 
-				$data = WTFactsAPI::addPV($subject, $data, "WorkflowExecutedIn", "_uri", $es);
+				$data = WTFactsAPI::addPV($subject, $data, "WorkflowExecutedIn", "_uri", $es, true);
 		if($timages)
 			foreach ($timages as $timage) 
-				$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplateImage", "_uri", $timage);
+				$data = WTFactsAPI::addPV($subject, $data, "WorkflowTemplateImage", "_uri", $timage, true);
 		if($rimages)
 			foreach ($rimages as $rimage) 
-				$data = WTFactsAPI::addPV($subject, $data, "WorkflowRunImage", "_uri", $rimage);
+				$data = WTFactsAPI::addPV($subject, $data, "WorkflowRunImage", "_uri", $rimage, true);
 		#if($tfile)
 		#	$data = WTFactsAPI::addPV($subject, $data, "WorkflowWingsTemplate", "_uri", $tfile);
 		#if($csys) 
@@ -615,25 +617,25 @@ class WTFactsAPI extends ApiBase {
 						if(array_key_exists("http://purl.org/net/opmv/ns#wasGeneratedBy", $val)) {
 							$op_datasets[] = $key;
 							$name = $val[$ontNS."hasFileName"][0];;
-							$data = WTFactsAPI::addPV($subject, $data, "WorkflowDataArtifact", "_wpg", $name);
+							$data = WTFactsAPI::addPV($subject, $data, "WorkflowDataArtifact", "_wpg", $name, true);
 						} else {
 							$ip_datasets[] = $key;
 							$name = $val[$ontNS."hasFileName"][0];;
-							$data = WTFactsAPI::addPV($subject, $data, "WorkflowInputDataArtifact", "_wpg", $name);
+							$data = WTFactsAPI::addPV($subject, $data, "WorkflowInputDataArtifact", "_wpg", $name, true);
 						}
 					} else{
 						$params[] = $key;
-						$data = WTFactsAPI::addPV($subject, $data, "WorkflowParamArtifact", "_uri", $key);
+						$data = WTFactsAPI::addPV($subject, $data, "WorkflowParamArtifact", "_uri", $key, true);
 					}
 				}
 				else if(in_array($ontNS."WorkflowExecutionProcess", $types)) {
 					$procs[] = $key;
-					$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcess", "_uri", $key);
+					$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcess", "_uri", $key, true);
 					//$name = preg_replace("/.+(#|\/)/", "", $key);
-					//$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcess", "_wpg", $name);
+					//$data = WTFactsAPI::addPV($subject, $data, "WorkflowProcess", "_wpg", $name, true);
 				}
 				else if(in_array("http://purl.org/net/opmv/ns#Agent", $types)) {
-					$data = WTFactsAPI::addPV($subject, $data, "WorkflowUser", "_uri", $key);
+					$data = WTFactsAPI::addPV($subject, $data, "WorkflowUser", "_uri", $key, true);
 				}
 			//}
 		}
@@ -765,7 +767,14 @@ class WTFactsAPI extends ApiBase {
 		}
 	}
 
-	private static function addPV($subject, $data, $prop, $ptype, $val) {
+	private static function addPV($subject, $data, $prop, $ptype, $val, $create_prop=false) {
+		$ptitle = Title::newFromText("Property:".$prop);
+		if(!$ptitle->exists() && $create_prop) {
+			$type = WTFactsAPI::getPropertyTypeFromDIType($ptype);
+			$text = "Property type: [[has type::$type]]\n";
+			$summary = "Creating new Property";
+			WTFactsAPI::createWikiPage("Property:$prop", $text, $summary);
+		}
 		$propDI = SMWDIProperty::newFromUserLabel( $prop );
 		$valDV = SMWDataValueFactory::newTypeIdValue ($ptype, $val);
 		$data = WTFactsAPI::addPropValToData($subject, $data, $propDI, $valDV->getDataItem());
@@ -802,7 +811,7 @@ class WTFactsAPI extends ApiBase {
 			$values = $data->getPropertyValues( $property );
 			//print "$propkey = ".implode(array_map("WTFactsAPI::getDIText", $values), ",")."\n";
 			foreach ( array_unique($values, SORT_REGULAR) as $dataItem ) {
-				$facts->addParameter( $property->getLabel(), WTFactsAPI::getDIText($dataItem) );
+				$facts->addParameter( "\n\t".$property->getLabel(), WTFactsAPI::getDIText($dataItem) );
 			}
 		}
 
@@ -855,6 +864,20 @@ class WTFactsAPI extends ApiBase {
 				return array( "Error", "Something went wrong: " . $status->getWikiText(), $data );
 			}
 		}
+	}
+
+	private static function getPropertyTypeFromDIType($type) {
+		if($type == "_num") 
+			return "Number";
+		if($type == "_bool") 
+			return "Boolean";
+		if($type == "_uri") 
+			return "URL";
+		if($type == "_str") 
+			return "String";
+		if($type == "_wpg") 
+			return "Page";
+		return "Page";
 	}
 
 	private static function guessValueType($value) {

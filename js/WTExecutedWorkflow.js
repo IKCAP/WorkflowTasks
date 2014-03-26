@@ -42,8 +42,8 @@ WTExecutedWorkflow.prototype.getListItem = function( list, wflow ) {
 	var wflink = wflow.url.replace(/\s/,'_');
 	wflow_li.append($j('<a href="'+wflink+'"></a>').append(wfname));
 
-	var idsets = this.getVariableDatasetsList(wflow.inputdatasets);
-	var dsets = this.getVariableDatasetsList(wflow.datasets);
+	var idsets = this.getVariableDatasetsList(wflow.inputdatasets, wflow.workflowtemplate);
+	var dsets = this.getVariableDatasetsList(wflow.datasets, wflow.workflowtemplate);
 	var params = this.groupListItems(wflow.parameters);
 	var procs = this.groupListItems(wflow.processes);
 
@@ -53,7 +53,7 @@ WTExecutedWorkflow.prototype.getListItem = function( list, wflow ) {
 	});
 
 	var wftemp = $j('<ul></ul>');
-	this.appendLinkItem(wftemp, wflow.workflowtemplate);
+	this.appendLinkItem(wftemp, wflow.templatewikipage ? wflow.templatewikipage : wflow.workflowtemplate);
 
 	var wingsxfile = $j('<ul></ul>');
 	this.appendLinkItem(wingsxfile, wflow.wingsexecutionfile);
@@ -96,17 +96,21 @@ WTExecutedWorkflow.prototype.getListItem = function( list, wflow ) {
 	return wflow_li;
 };
 
-WTExecutedWorkflow.prototype.getVariableDatasetsList = function( data ) {
+WTExecutedWorkflow.prototype.getVariableDatasetsList = function( data, wflink ) {
 	var ditem = $j('<ul class="grouplist"></ul>');
 	var dindexed = {};
 	var me = this;
+	var wfname = wflink.replace(/.+\//, '');
 	$j.each(data, function(variable, dvals) {
 		var sdvals = dvals.sort();
 		var subditem = $j('<ul></ul>');
 		$j.each(sdvals, function(i, d) {
-			me.appendLinkItem(subditem, d);
+			var dname = d.replace(wfname+'_', '');
+			me.appendLinkItem(subditem, dname);
 		});
-		ditem.append($j('<li>'+variable+' ('+dvals.length+')</li>').append(subditem));
+		var vname = variable.replace(/.+\//, '');
+		vname = vname.replace(wfname+'_', '');
+		ditem.append($j('<li>'+vname+' ('+dvals.length+')</li>').append(subditem));
 	});
 	return ditem;
 };

@@ -19,6 +19,7 @@ class ExecutedWorkflow extends Workflow {
 			'status'=>'', 
 			'wingsexecutionfile'=>'', 
 			'workflowtemplate'=>'', 
+			'templatewikipage'=>'', 
 			'runimage'=>'', 
 			'executedin'=>array(), 
 			'inputdatasets'=>array(),
@@ -32,10 +33,11 @@ class ExecutedWorkflow extends Workflow {
 
 		# SMW Initialization 
 		$subject = SMWDIWikiPage::newFromTitle( $this->title );
+		$store = &smwfGetStore();
 
 		$url = "";
 		$wflowProp = SMWDIProperty::newFromUserLabel('ExecutedWorkflow');
-		$wflows = smwfGetStore()->getPropertyValues( $subject, $wflowProp );
+		$wflows = $store->getPropertyValues( $subject, $wflowProp );
 		foreach($wflows as $wflow) {
 			$url = $this->getUri($wflow);
 			break;
@@ -57,22 +59,23 @@ class ExecutedWorkflow extends Workflow {
 			//$crinProp = SMWDIProperty::newFromUserLabel('WorkflowCreatedIn');
 			//$tfileProp = SMWDIProperty::newFromUserLabel('WorkflowWingsTemplate');
 			//$timageProp = SMWDIProperty::newFromUserLabel('WorkflowTemplateImage');
+			$wflowProp = SMWDIProperty::newFromUserLabel('Workflow');
 	
-			$idsets = smwfGetStore()->getPropertyValues( $subject, $idsetProp );
-			$dsets = smwfGetStore()->getPropertyValues( $subject, $dsetProp );
-			$params = smwfGetStore()->getPropertyValues( $subject, $paramProp );
-			$procs = smwfGetStore()->getPropertyValues( $subject, $procProp );
-			$users = smwfGetStore()->getPropertyValues( $subject, $userProp );
-			$stimes = smwfGetStore()->getPropertyValues( $subject, $stimeProp );
-			$etimes = smwfGetStore()->getPropertyValues( $subject, $etimeProp );
-			$statuses = smwfGetStore()->getPropertyValues( $subject, $stProp );
-			$exins = smwfGetStore()->getPropertyValues( $subject, $exinProp );
-			$efiles = smwfGetStore()->getPropertyValues( $subject, $efileProp );
-			$tpages = smwfGetStore()->getPropertyValues( $subject, $tpageProp );
-			$rimages = smwfGetStore()->getPropertyValues( $subject, $rimageProp );
-			//$crins = smwfGetStore()->getPropertyValues( $subject, $crinProp );
-			//$tfiles = smwfGetStore()->getPropertyValues( $subject, $tfileProp );
-			//$timages = smwfGetStore()->getPropertyValues( $subject, $timageProp );
+			$idsets = $store->getPropertyValues( $subject, $idsetProp );
+			$dsets = $store->getPropertyValues( $subject, $dsetProp );
+			$params = $store->getPropertyValues( $subject, $paramProp );
+			$procs = $store->getPropertyValues( $subject, $procProp );
+			$users = $store->getPropertyValues( $subject, $userProp );
+			$stimes = $store->getPropertyValues( $subject, $stimeProp );
+			$etimes = $store->getPropertyValues( $subject, $etimeProp );
+			$statuses = $store->getPropertyValues( $subject, $stProp );
+			$exins = $store->getPropertyValues( $subject, $exinProp );
+			$efiles = $store->getPropertyValues( $subject, $efileProp );
+			$tpages = $store->getPropertyValues( $subject, $tpageProp );
+			$rimages = $store->getPropertyValues( $subject, $rimageProp );
+			//$crins = $store->getPropertyValues( $subject, $crinProp );
+			//$tfiles = $store->getPropertyValues( $subject, $tfileProp );
+			//$timages = $store->getPropertyValues( $subject, $timageProp );
 
 			$details["url"] = $url;
 			//foreach($idsets as $idset) 
@@ -96,9 +99,15 @@ class ExecutedWorkflow extends Workflow {
 			foreach($efiles as $efile) 
 				$details['wingsexecutionfile'] = $this->getUri($efile);
 			foreach($tpages as $tpage) {
-				$tname = preg_replace('/.+\//','', $this->getUri($tpage));
-				$ttitle = Title::newFromText($tname);
-				$details['workflowtemplate'] = $ttitle->exists() ? $tname : $this->getUri($tpage);
+				$details['workflowtemplate'] = $this->getUri($tpage);
+				$tmpurl = preg_replace('/\/resource\//', '/page/resource/', $this->getUri($tpage));
+				$urlDV = SMWDataValueFactory::newTypeIdValue ('_uri', $tmpurl);
+				try {
+					$temps = $store->getPropertySubjects( $wflowProp, $urlDV->getDataItem() );
+				}
+				catch (Exception $e) { $temps = array(); }
+				foreach($temps as $temp) 
+					$details['templatewikipage'] = $temp->getDBKey();
 			}
 			foreach($rimages as $rimage) 
 				$details['runimage'] = $this->getUri($rimage);

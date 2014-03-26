@@ -85,7 +85,10 @@ class Workflow extends WTBase {
 
 			$tmpurl = preg_replace('/page\//', '', $url);
 			$urlDV = SMWDataValueFactory::newTypeIdValue ('_uri', $tmpurl);
-			$execs = $store->getPropertySubjects( $wtempProp, $urlDV->getDataItem() );
+			try {
+				$execs = $store->getPropertySubjects( $wtempProp, $urlDV->getDataItem() );
+			}
+			catch (Exception $e) { $execs = array(); }
 
 			$details["url"] = $url;
 			foreach($dvars as $dvar) 
