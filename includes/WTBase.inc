@@ -79,6 +79,7 @@ class WTBase {
 		$out->addScriptFile( $wgDir . '/js/WTUtil.js' );
 		$out->addScriptFile( $wgDir . '/js/WTFacts.js' );
 		$out->addScriptFile( $wgDir . '/js/WTCredits.js' );
+		$out->addScriptFile( $wgDir . '/js/WTSidebar.js' );
 		$out->addScriptFile( $wgDir . '/js/WTCategoryChooser.js' );
 
 		$out->addScriptFile( $wgDir . '/js/WTSubTasks.js' );
@@ -106,6 +107,7 @@ class WTBase {
 		list ($error, $facts, $text) = WTFactsAPI::getFacts($this->title->getFullText());
 		$out->addHTML("<script>var allwtfacts = ".json_encode($facts).";</script>\n");
 		$out->addHTML("<script>var allwtdetails = ".json_encode($details).";</script>\n");
+		$out->addHTML("<script>var allwttree = {};</script>\n");
 		$out->addHTML("<script>var wtallcategories = ['Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object', 'DataType', 'Thing'];</script>\n");
 		//$out->addHTML("<script>var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person', 'DataType', 'Thing'];</script>\n");
 		$out->addHTML("<script>var wtcategories = [];</script>\n");
@@ -123,6 +125,9 @@ class WTBase {
 
 		# -- Credits Div
 		$this->addCreditsDiv( $out );
+
+		# -- Sidebar Div
+		$this->addSidebarDiv( $out );
 	}
 
 	function addCategoryChooserDiv($out) {
@@ -135,6 +140,10 @@ class WTBase {
 
 	function addFactsDiv($out) {
 		$out->addHTML("<div id='main-facts'></div>");
+	}
+
+	function addSidebarDiv($out) {
+		$out->addHTML("<div id='main-tree-sidebar'></div>");
 	}
 
 	function addCreditsDiv($out) {

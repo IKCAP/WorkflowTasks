@@ -25,6 +25,9 @@ class WTUserProvidedData extends WTBase {
 
 		# -- Credits Div
 		$this->addCreditsDiv( $out );
+
+		# -- Sidebar Div
+		$this->addSidebarDiv( $out );
 	}
 
 	function getPageDetails() {

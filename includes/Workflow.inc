@@ -25,6 +25,9 @@ class Workflow extends WTBase {
 
 		# -- Credits Div
 		$this->addCreditsDiv( $out );
+
+		# -- Sidebar Div
+		$this->addSidebarDiv( $out );
 	}
 
 	public function getPageDetails($title=null) {

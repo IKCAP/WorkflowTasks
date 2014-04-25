@@ -28,6 +28,9 @@ class WTMainPage extends WTBase {
 
 		# -- Add Existing Markup Here
 		$out->addHTML( $old );
+
+		# -- Sidebar Div
+		$this->addSidebarDiv( $out );
 	}
 
 

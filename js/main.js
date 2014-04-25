@@ -10,6 +10,14 @@ $j(function() {
 	var wtapi = new WTAPI(wgPageName, wgScriptPath+'/api.php');
 	var wtutil = new WTUtil(wgPageName, wtapi);
 
+	// Create sidebar
+	var treediv = $('#main-tree-sidebar');
+	if(treediv) {
+		treediv.detach().appendTo('#p-navigation');
+		var wtsidebar = new WTSidebar(wgPageName, allwttree, wtutil, wtapi);
+		wtsidebar.display(treediv);
+	}
+
 	if(wtcategories["Task"]) {
 		var wtanswers = new WTAnswers(wgPageName, allwtdetails, wtutil, wtapi);
 		var answersdiv = $j("#main-answers");
