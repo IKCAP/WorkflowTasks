@@ -68,12 +68,14 @@ WTDataColumns.prototype.fillList = function( list ) {
 WTDataColumns.prototype.sortDataColumns = function(data) {
 	var sobjects = {};
 	for(var sobj in data.subobjects) 
-		sobjects[this.upperCaseFirst(sobj)] = data.subobjects[sobj];
-	data.Columns.values.sort(function(a, b) {
-		var ia = parseInt(sobjects[a.val].Index.values[0].val);
-		var ib = parseInt(sobjects[b.val].Index.values[0].val);
-		return ia > ib;
-	});
+		sobjects[this.upperCaseFirst(sobj)] = parseInt(data.subobjects[sobj].Index.values[0].val);
+	var vals = [];
+	var colhash = {};
+	for (var i=0; i<data.Columns.values.length; i++) {
+		var ind = sobjects[data.Columns.values[i].val];
+		vals[ind] = data.Columns.values[i];	
+	}
+	data.Columns.values = vals;
 };
 
 WTDataColumns.prototype.createNewList = function(list, addcol, delcol, moveupcol) {
