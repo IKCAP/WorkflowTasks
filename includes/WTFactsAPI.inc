@@ -469,6 +469,10 @@ class WTFactsAPI extends ApiBase {
 					$newdata->addPropertyObjectValue( $pDI, $vDI );
 			}
 		}
+		# Re-add subobject data
+		$subarr = $data->getSubSemanticData();
+		foreach($subarr as $sub) 
+			$newdata->addSubSemanticData($sub);
 		return $newdata;
 	}
 
@@ -481,6 +485,10 @@ class WTFactsAPI extends ApiBase {
 					$newdata->addPropertyObjectValue( $pDI, $vDI );
 			}
 		}
+		# Re-add subobject data
+		$subarr = $data->getSubSemanticData();
+		foreach($subarr as $sub) 
+			$newdata->addSubSemanticData($sub);
 		return $newdata;
 	}
 

@@ -58,23 +58,27 @@ WTDataColumns.prototype.upperCaseFirst = function(string) {
 
 WTDataColumns.prototype.fillList = function( list ) {
 	var data = list.data('data');
+	if(data && data.Columns && data.Columns.values) {
+		this.sortDataColumns(data);
+		for(var i=data.Columns.values.length-1; i>=0; i--) 
+			list.prepend(this.getListItem(list, data.Columns.values[i]));
+	}
+};
+
+WTDataColumns.prototype.sortDataColumns = function(data) {
 	var sobjects = {};
 	for(var sobj in data.subobjects) 
 		sobjects[this.upperCaseFirst(sobj)] = data.subobjects[sobj];
-	var me = this;
-	if(data && data.Columns && data.Columns.values) {
-		var cols = data.Columns.values.sort(function(a, b) {
-			var ia = parseInt(sobjects[a.val].Index.values[0].val);
-			var ib = parseInt(sobjects[b.val].Index.values[0].val);
-			return ia > ib;
-		});
-		for(var i=cols.length-1; i>=0; i--) 
-			list.prepend(this.getListItem(list, cols[i]));
-	}
+	data.Columns.values.sort(function(a, b) {
+		var ia = parseInt(sobjects[a.val].Index.values[0].val);
+		var ib = parseInt(sobjects[b.val].Index.values[0].val);
+		return ia > ib;
+	});
 };
 
 WTDataColumns.prototype.createNewList = function(list, addcol, delcol, moveupcol) {
 	var newlist = [];
+	this.sortDataColumns(list.data('data'));
 	var curlist = list.data('data').Columns;
 	if(curlist) {
 		for(var i=0; i<curlist.values.length; i++) {
