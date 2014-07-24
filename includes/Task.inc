@@ -102,7 +102,9 @@ class Task extends WTBase {
 				"Answered"=>$answerDone);
 
 		if($top) {
-			$details["item"] = array("text"=>$title->getText(), "exists"=>$title->exists());
+			$details["item"] = array("text"=>$title->getText(), 
+							"exists"=>$title->exists(),
+							"key"=>$title->getDbKey());
 			$details["Parents"] = $this->getParentTasks($title);
 			uasort($details["Contributors"], "WTBase::compareContributors");
 		}

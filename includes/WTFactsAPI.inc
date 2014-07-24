@@ -243,6 +243,8 @@ class WTFactsAPI extends ApiBase {
 	}
 
 	public static function addFact($title, $property, $value, $type=null, $create_prop=true, $subobjs=null) {
+		if($property == "SubTask") 
+			$value = preg_replace("/\//", " or ", $value);
 		$ptitle = Title::newFromText("Property:".$property);
 		if(!$ptitle->exists() && $create_prop) {
 			$type = WTFactsAPI::guessValueType($value);
