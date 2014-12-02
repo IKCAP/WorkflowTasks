@@ -494,7 +494,7 @@ a.todo:hover {
 .props-table{
 	padding: 0px;
 	overflow:hidden; 
-	overflow-x:scroll; 
+	/*overflow-x:scroll;*/ 
 }
 .props-table .table{
 	display: table;
