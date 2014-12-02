@@ -3,6 +3,22 @@ var lpMsg = function(key) {
 };
 
 $j(function() {
+    // Custom autocomplete instance.
+    $.widget( "app.autocomplete", $.ui.autocomplete, {
+        options: { highlightClass: "ui-state-highlight" },
+        _renderItem: function( ul, item ) {
+            var re = new RegExp( "(" + this.term + ")", "gi" ),
+                cls = this.options.highlightClass,
+                template = "<span class='" + cls + "'>$1</span>",
+                label = item.label.replace( re, template ),
+                $li = $( "<li/>" ).appendTo( ul );
+            $( "<a/>" ).attr( "href", "#" )
+                       .html( label )
+                       .appendTo( $li );
+            return $li;
+        }
+    });
+
 	//if (typeof smw_tooltipInit !== 'undefined') smw_tooltipInit();
 	//$j('#ca-edit').hide();
 	//$j('a.actionlink').click(function() { return false; });
@@ -23,6 +39,12 @@ $j(function() {
 		var answersdiv = $j("#main-answers");
 		wtanswers.display(answersdiv);
 
+		var wtsubs = new WTSubTasks(wgPageName, allwtdetails, wtutil, wtapi);
+		var treediv = $j("#main-tree");
+		wtsubs.display(treediv);
+	}
+	else if(wtcategories["Procedure"]) {
+		$j("#main-answers").css('display', 'none');
 		var wtsubs = new WTSubTasks(wgPageName, allwtdetails, wtutil, wtapi);
 		var treediv = $j("#main-tree");
 		wtsubs.display(treediv);
@@ -51,7 +73,6 @@ $j(function() {
 		var wtdata = new WTUserDescribedData(wgPageName, allwtdetails, wtutil, wtapi);
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
-		datadiv.append('<br/>');
 		var wtdatacols = new WTDataColumns(wgPageName, allwtfacts, wtutil, wtapi);
 		wtdatacols.display(datadiv);
 	}
@@ -59,7 +80,6 @@ $j(function() {
 		var wtdata = new WTUserProvidedData(wgPageName, allwtdetails, wtutil, wtapi);
 		var datadiv = $j("#main-data");
 		wtdata.display(datadiv);
-		datadiv.append('<br/>');
 		var wtdatacols = new WTDataColumns(wgPageName, allwtfacts, wtutil, wtapi);
 		wtdatacols.display(datadiv);
 	}
@@ -73,13 +93,25 @@ $j(function() {
 		var persondiv = $j("#main-person");
 		wtperson.display(persondiv);
 	}
-	else {
+	else if(!Object.keys(wtcategories).length) {
 		var wtcatchooser = new WTCategoryChooser(wgPageName, wtutil, wtapi);
 		var catchooserdiv = $j("#category-chooser");
 		wtcatchooser.display(catchooserdiv);
 	}
+	else {
+		$j("#category-chooser").css('display', 'none');
+	}
 
-	var wtfacts = new WTFacts(wgPageName, allwtfacts, wtutil, wtapi);
+	if(Object.keys(stdwtprops).length) {
+		var wtstdprops = new WTStdProperties(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
+		var stdpropsdiv = $j("#main-std-props");
+		wtstdprops.display(stdpropsdiv);
+	}
+	else {
+		$j("#main-std-props").css('display', 'none');
+	}
+
+	var wtfacts = new WTFacts(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
 	var factsdiv = $j("#main-facts");
 	wtfacts.display(factsdiv);
 

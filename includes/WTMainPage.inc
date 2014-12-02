@@ -36,8 +36,9 @@ class WTMainPage extends WTBase {
 
 	function addRecentChangedPages($out, $limit) {
 		$changedPages = $this->getRecentlyChangedPages($limit);
-		$out->addHTML("<div class='wt-sidebox'>");
-		$out->addHTML("<h2>Recently Changed Pages</h2>");
+		$out->addHTML("<div class='wt-sidebox props-table'>");
+		$out->addHTML("<div class='heading'><b>Recently Changed Pages</b></div>");
+		$out->addHTML("<div style='padding:5px'>");
 		$out->addHTML("<ul>");
 		foreach($changedPages as $page) {
 			$page_text = str_replace("_", " ", $page);
@@ -45,12 +46,14 @@ class WTMainPage extends WTBase {
 		}
 		$out->addHTML("</ul>");
 		$out->addHTML("</div>");
+		$out->addHTML("</div>");
 	}
 
 	function addRecentContributors($out, $limit) {
 		$recentContribs = $this->getRecentContributors($limit);
-		$out->addHTML("<div class='wt-sidebox'>");
-		$out->addHTML("<h2>Recent Contributors</h2>");
+		$out->addHTML("<div class='wt-sidebox props-table'>");
+		$out->addHTML("<div class='heading'><b>Recent Contributors</b></div>");
+		$out->addHTML("<div style='padding:5px'>");
 		$out->addHTML("<ul>");
 		foreach($recentContribs as $user) {
 			$user_text = str_replace("_", " ", $user);
@@ -58,18 +61,21 @@ class WTMainPage extends WTBase {
 		}
 		$out->addHTML("</ul>");
 		$out->addHTML("</div>");
+		$out->addHTML("</div>");
 	}
 
 	function addHighestContributors($out, $limit) {
 		$highestContribs = $this->getHighestContributors($limit);
-		$out->addHTML("<div class='wt-sidebox'>");
-		$out->addHTML("<h2>Highest Contributors</h2>");
+		$out->addHTML("<div class='wt-sidebox props-table'>");
+		$out->addHTML("<div class='heading'><b>Highest Contributors</b></div>");
+		$out->addHTML("<div style='padding:5px'>");
 		$out->addHTML("<ul>");
 		foreach($highestContribs as $user) {
 			$user_text = str_replace("_", " ", $user[0]);
 			$out->addHTML("<li><a href='./User:".$user[0]."'>$user_text</a> (".$user[1]." Edits)</li>");
 		}
 		$out->addHTML("</ul>");
+		$out->addHTML("</div>");
 		$out->addHTML("</div>");
 	}
 

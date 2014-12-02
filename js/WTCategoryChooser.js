@@ -30,7 +30,13 @@ WTCategoryChooser.prototype.display = function( item ) {
 		});
 	});
 
-	item.append($j('<div>Choose a Category for this page:</div>'));
-	item.append(select);
+	if(wtuid) {
+		var catdiv = $j('<div style="padding:5px">Choose a Category for this page:</div>');
+		catdiv.append('<br/>').append(select);
+		item.append(catdiv);
+	}
+	else {
+		item.append($j('<div style="padding:5px">No Category</div>'));
+	}
 };
 

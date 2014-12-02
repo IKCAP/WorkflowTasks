@@ -61,17 +61,13 @@ WTData.prototype.getList = function( item, data ) {
 
 WTData.prototype.display = function( item ) {
 	var me = this;
-
-	item.data('numchecked', 0);
-	item.data('checked_data', []);
 	item.data('data', me.details);
 
 	var list = me.getList( item, me.details );
-
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Data');
-	var toolbar = $j('<div></div>').append(header);
-	//toolbar.append(me.util.getHelpButton('add_wflow')));
-	item.append(toolbar);
-	item.append(list);
+	var header = $j('<div class="heading"></div>').append($j('<b>Data</b>'));
+	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

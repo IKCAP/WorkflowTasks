@@ -69,11 +69,8 @@ class WTBase {
 
 	function includeJSHeaders($out, $wgDir) {
 		$out->includeJQuery();
-		//$out->addScriptFile( $wgDir . '/js/jquery/jquery.jeditable.js' );
 		$out->addScriptFile( $wgDir . '/js/jquery/jquery.loadmask.min.js' );
-		$out->addScriptFile( $wgDir . '/js/jquery/jquery.autocomplete.js' );
-		//$out->addScriptFile( $wgDir . '/js/jquery/jquery.translate-NCT,core,NCT-adapter,ui,progress.min.js' );
-		//$out->addScriptFile( $wgDir . '/js/jquery/jqModal.js' );
+		$out->addScriptFile( '//code.jquery.com/ui/1.11.2/jquery-ui.js' );
 
 		$out->addScriptFile( $wgDir . '/js/WTAPI.js' );
 		$out->addScriptFile( $wgDir . '/js/WTUtil.js' );
@@ -93,11 +90,15 @@ class WTBase {
 		$out->addScriptFile( $wgDir . '/js/WTPerson.js' );
 		$out->addScriptFile( $wgDir . '/js/WTWorkflow.js' );
 		$out->addScriptFile( $wgDir . '/js/WTExecutedWorkflow.js' );
+
+		$out->addScriptFile( $wgDir . '/js/WTStdProperties.js' );
+
 		$out->addScriptFile( $wgDir . '/js/main.js' );
 	}
 
 	function includeCSSHeaders($out, $wgDir) {
-		$out->addExtensionStyle( $wgDir . '/css/jquery/jquery.autocomplete.css' );
+		$out->addExtensionStyle( '//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' );
+		$out->addExtensionStyle( '//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
 		$out->addExtensionStyle( $wgDir . '/css/jquery/jquery.loadmask.css' );
 		$out->addExtensionStyle( $wgDir . '/css/wtree.css' );
 	}
@@ -105,22 +106,39 @@ class WTBase {
 	function setJavascriptVariables($out) {
 		$details = $this->getPageDetails();
 		list ($error, $facts, $text) = WTFactsAPI::getFacts($this->title->getFullText());
-		$out->addHTML("<script>var allwtfacts = ".json_encode($facts).";</script>\n");
-		$out->addHTML("<script>var allwtdetails = ".json_encode($details).";</script>\n");
-		$out->addHTML("<script>var allwttree = {};</script>\n");
-		$out->addHTML("<script>var wtallcategories = ['Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object', 'DataType', 'Thing'];</script>\n");
-		//$out->addHTML("<script>var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person', 'DataType', 'Thing'];</script>\n");
-		$out->addHTML("<script>var wtcategories = [];</script>\n");
+		$out->addHTML("<script>\n");
+		$out->addHTML("var allwtfacts = ".json_encode($facts).";\n");
+		$out->addHTML("var allwtdetails = ".json_encode($details).";\n");
+		$out->addHTML("var allwttree = {};\n");
+		$out->addHTML("var wtallcategories = ['SampleCollection','Procedure','Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object', 'DataType', 'Thing'];\n");
+		//$out->addHTML("var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person', 'DataType', 'Thing'];\n");
+		$out->addHTML("var wtcategories = [];\n");
+		$out->addHTML("var stdwtprops = [];\n");
 		$cats = $out->getCategories();
-		foreach($cats as $cat) 
-			$out->addHTML("<script>wtcategories['$cat'] = true;</script>\n");
+		foreach($cats as $cat) {
+			$out->addHTML("wtcategories['$cat'] = true;\n");
+			$props = WTFactsAPI::getCategoryProperties($cat);
+			foreach($props as $prop) {
+				$out->addHTML("stdwtprops['".$prop['label']."'] = ".json_encode($prop).";\n");
+			}
+		}
+		global $wgUser;	
+		$out->addHTML("var wtuid = null;\n");
+		if($wgUser->isLoggedIn()){
+			$uid = $wgUser->getName();
+			$out->addHTML("wtuid = '".$uid."';\n");
+		}  			
+		$out->addHTML("</script>\n");
 	}
 
 	function modifyWikiPage($out) {
 		# -- Add the Category Changer
 		$this->addCategoryChooserDiv( $out );
 
-		# -- Add a Facts Table
+		# -- Add the Standard Properties Table
+		$this->addStdPropsDiv( $out );
+
+		# -- Add the Facts Table
 		$this->addFactsDiv( $out );
 
 		# -- Credits Div
@@ -135,43 +153,47 @@ class WTBase {
 	}
 
 	function addTreeDiv($out, $type) {
-		$out->addHTML("<div id='main-tree'></div>");
+		$out->addHTML("<div id='main-tree' class='props-table'></div>");
+	}
+
+	function addStdPropsDiv($out) {
+		$out->addHTML("<div id='main-std-props' class='props-table'></div>");
 	}
 
 	function addFactsDiv($out) {
-		$out->addHTML("<div id='main-facts'></div>");
+		$out->addHTML("<div id='main-facts' class='props-table'></div>");
 	}
 
 	function addSidebarDiv($out) {
-		$out->addHTML("<div id='main-tree-sidebar'></div>");
+		$out->addHTML("<div id='main-tree-sidebar' class='props-table'></div>");
 	}
 
 	function addCreditsDiv($out) {
-		$out->addHTML("<div id='main-credits'></div>");
+		$out->addHTML("<div id='main-credits' class='props-table'></div>");
 	}
 
 	function addAnswersDiv($out) {
-		$out->addHTML("<div id='main-answers'></div>");
+		$out->addHTML("<div id='main-answers' class='props-table'></div>");
 	}
 
 	function addTasksDiv($out) {
-		$out->addHTML("<div id='main-tasks'></div>");
+		$out->addHTML("<div id='main-tasks' class='props-table'></div>");
 	}
 
 	function addWorkflowDiv($out) {
-		$out->addHTML("<div id='main-workflow'></div>");
+		$out->addHTML("<div id='main-workflow' class='props-table'></div>");
 	}
 
 	function addDataDiv($out) {
-		$out->addHTML("<div id='main-data'></div>");
+		$out->addHTML("<div id='main-data' class='props-table'></div>");
 	}
 
 	function addPersonDiv($out) {
-		$out->addHTML("<div id='main-person'></div>");
+		$out->addHTML("<div id='main-person' class='props-table'></div>");
 	}
 
 	function addComponentDiv($out) {
-		$out->addHTML("<div id='main-comp'></div>");
+		$out->addHTML("<div id='main-comp' class='props-table'></div>");
 	}
 }
 

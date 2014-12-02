@@ -24,20 +24,21 @@ WTWorkflow.prototype.getListItem = function( list, wflow ) {
 	var wflow_li = $j('<li></li>');
 
 	var me = this;
-	var delhref = $j('<a class="lodlink">[x]</a>');
-	// Minus [-] link's event handler
-	delhref.click( function(e) {
-		list.mask(lpMsg('Removing Workflow Link..'));
-		me.api.removeWorkflow( me.title, wflow.url, function(resp) {
-			list.unmask();
-			if(!resp || !resp.wtfacts) return;
-			if(resp.wtfacts.result == 'Success') {
-				me.addwflow_link.css('display', '');
-				wflow_li.remove();
-			}
+	if(wtuid) {
+		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref.click( function(e) {
+			list.mask(lpMsg('Removing Workflow Link..'));
+			me.api.removeWorkflow( me.title, wflow.url, function(resp) {
+				list.unmask();
+				if(!resp || !resp.wtfacts) return;
+				if(resp.wtfacts.result == 'Success') {
+					me.addwflow_link.css('display', '');
+					wflow_li.remove();
+				}
+			});
 		});
-	});
-	wflow_li.append(delhref).append(' ');
+		wflow_li.append(delhref).append(' ');
+	}
 	
 	var wfname = wflow.url.replace(/.+\//, '');
 	//wfname = wfname.replace(/_/g, ' ');
@@ -147,22 +148,26 @@ WTWorkflow.prototype.getList = function( item, data ) {
 WTWorkflow.prototype.display = function( item ) {
 	var me = this;
 
-	item.data('numchecked', 0);
-	item.data('checked_data', []);
 	item.data('data', me.details);
 
 	var list = me.getList( item, me.details );
 
-	me.addwflow_link = $j('<a class="x-small lodbutton">' + lpMsg('Add Pubby Link') + '</a>');
-	me.addwflow_link.click(function( e ) {
-		list.find('li:first').css('display', '');
-	});
+	if(wtuid) {
+		me.addwflow_link = $j('<a class="x-small lodbutton">' + lpMsg('Add Pubby Link') + '</a>');
+		me.addwflow_link.click(function( e ) {
+			list.find('li:first').css('display', '');
+		});
+	}
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Workflow');
-	var toolbar = $j('<div></div>').append(header).append(me.addwflow_link);
+	var header = $j('<div class="heading"></div>').append($j('<b>Workflow</b>'));
+	item.append(header);
+
+	var wrapper = $j('<div style="padding:5px"></div>');
+	var toolbar = $j('<div></div>').append(me.addwflow_link);
 	//toolbar.append(me.util.getHelpButton('add_wflow')));
-	item.append(toolbar);
-	item.append(list);
+	wrapper.append(toolbar);
+	wrapper.append(list);
+	item.append(wrapper);
 
 	if(me.details.Workflow) {
 		me.addwflow_link.css('display', 'none');

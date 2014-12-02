@@ -28,6 +28,8 @@ class WTSuggestAPI extends ApiBase {
 			list($error, $suggestions, $text) = WTSuggestAPI::getProperties($search);
 		else if ($type === 'columntype') 
 			list($error, $suggestions, $text) = WTSuggestAPI::getPages($search, "DataType", "");
+		else
+			list($error, $suggestions, $text) = WTSuggestAPI::getPages($search, $type, "");
 		
 		if ($error === '')
 			$error = 'UnknownType';
@@ -57,12 +59,12 @@ class WTSuggestAPI extends ApiBase {
 		foreach($result->getResults() as $page) {
 			$plabel = $page->getDBKey();
 			if(preg_match("/^$search/i", $plabel))
-				$main_suggestions[] = array("exists"=>true, "label"=>$plabel);
+				$main_suggestions[] = $plabel; //array("exists"=>true, "label"=>$plabel);
 			else if(preg_match("/$search/i", $plabel))
-				$extra_suggestions[] = array("exists"=>true, "label"=>$plabel);
+				$extra_suggestions[] = $plabel; //array("exists"=>true, "label"=>$plabel);
 		}
 		$suggestions = array_merge($main_suggestions, $extra_suggestions);
-		return array( "Success", $suggestions, "Properties matching $search");
+		return array( "Success", $suggestions, "$category Pages matching $search");
 	}
 
 	public static function getProperties($search) {
@@ -71,6 +73,7 @@ class WTSuggestAPI extends ApiBase {
 		$extra_suggestions = array();
 		$store = &smwfGetStore();
 
+		$prophash = array();
 		$opts = new SMWRequestOptions();
 		$propcounts = $store->getPropertiesSpecial($opts)->getResults();
 		foreach($propcounts as $pcount) {
@@ -83,23 +86,27 @@ class WTSuggestAPI extends ApiBase {
 			//$propexists = $ptitle->exists();
 			$propexists = true;
 			$plabel = $prop->getLabel();
+			if($prophash[$plabel]) continue;
+			$prophash[$plabel] = true;
 			if($plabel && !preg_match('/^(SubTask|Answer|Workflow)$/', $plabel)) {
 				if(!$search) 
-					$main_suggestions[] = array("exists"=>$propexists, "label"=>$plabel);
+					$main_suggestions[] = $plabel; //array("exists"=>$propexists, "label"=>$plabel);
 				else if(preg_match("/^$search/i", $plabel))
-					$main_suggestions[] = array("exists"=>$propexists, "label"=>$plabel);
+					$main_suggestions[] = $plabel; //array("exists"=>$propexists, "label"=>$plabel);
 				else if(preg_match("/$search/i", $plabel))
-					$extra_suggestions[] = array("exists"=>$propexists, "label"=>$plabel);
+					$extra_suggestions[] = $plabel; //array("exists"=>$propexists, "label"=>$plabel);
 			}
 		}
 
 		$unusedprops = $store->getUnusedPropertiesSpecial($opts)->getResults();
 		foreach($unusedprops as $prop) {
 			$plabel = $prop->getLabel();
-			if($plabel && 
+			if($prophash[$plabel]) continue;
+			$prophash[$plabel] = true;
+			if($plabel &&
 					!preg_match('/^(SubTask|Answer|Workflow)$/', $plabel) && 
 					preg_match("/$search/i", $plabel))
-				$extra_suggestions[] = array("exists"=>true, "label"=>$plabel);
+				$extra_suggestions[] = $plabel; //array("exists"=>true, "label"=>$plabel);
 		}
 
 		$suggestions = array_merge($main_suggestions, $extra_suggestions);

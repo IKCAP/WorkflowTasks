@@ -32,6 +32,7 @@ class WTFactsAPI extends ApiBase {
 
 		$property = $params['property'];
 		$value = $params['value'];
+		$oldvalue = $params['oldvalue'];
 		$subobjs = $params['subobjectsjson'] ? json_decode($params['subobjectsjson'], true) : null;
 		$type = $params['type'];
 
@@ -39,8 +40,7 @@ class WTFactsAPI extends ApiBase {
 			$category = $params['category'];
 			if (is_null($category)) $this->dieUsage('Must specify category', 'unspecified_category');
 			list($error, $text) = WTFactsAPI::createPageWithCategory($title, $category);
-		}
-		else if ($op === 'updatesubobjects') {
+		} else if ($op === 'updatesubobjects') {
 			list($error, $text, $data) = WTFactsAPI::updateSubobjects($title, $subobjs);
 			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
 		} elseif ($op === 'show') {
@@ -54,6 +54,11 @@ class WTFactsAPI extends ApiBase {
 			if (is_null($property)) $this->dieUsage('Must specify property', 'unspecified_property');
 			if (is_null($value)) $this->dieUsage('Must specify value', 'unspecified_value');
 			list($error, $text, $data) = WTFactsAPI::delFact($title, $property, $value, $type, $subobjs);
+			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
+		} elseif ($op === 'set'){
+			if (is_null($property)) $this->dieUsage('Must specify property', 'unspecified_property');
+			if (is_null($value)) $this->dieUsage('Must specify value', 'unspecified_value');
+			list($error, $text, $data, $this->newdetails) = WTFactsAPI::setFact($title, $property, $value, $oldvalue);
 			list($error2, $this->facts, $text2) = WTFactsAPI::getFacts($title, $data);
 		}
 		
@@ -76,10 +81,17 @@ class WTFactsAPI extends ApiBase {
 
 		$this->getResult()->addValue(null, 'wtfacts', $result);
 	}
-
+	
 	public static function getDVText($dataValue) {
 		$text = $dataValue->getShortText(null);
 		return $text;
+	}
+
+	public static function getDIPage($di) {
+		$subobj = $di->getSubobjectName();
+		if($subobj)
+			return $di->getDBKey()."#$subobj";
+		return $di->getDBKey();
 	}
 
 	public static function getDIText($di) {
@@ -91,7 +103,7 @@ class WTFactsAPI extends ApiBase {
 			case SMWDataItem::TYPE_URI:
 				return $di->getURI();
 			case SMWDataItem::TYPE_WIKIPAGE:
-				return $di->getDBKey();
+				return WTFactsAPI::getDIPage($di);
 			default:
 				return $di->getSerialization();
 		}
@@ -103,7 +115,7 @@ class WTFactsAPI extends ApiBase {
 		$type = get_class($di);
 		$type = str_replace("SMW\DI","", $type);
 		$type = str_replace("SMWDI","", $type);
-		$key = ($type=="WikiPage") ? $di->getDbKey() : "";
+		$key = ($type=="WikiPage") ? WTFactsAPI::getDIPage($di) : "";
 		$exists = ($type=="WikiPage") ? $di->getTitle()->exists() : "";
 		return array("val"=>$val, "text"=>$text, "type"=>$type, "key"=>$key, "exists"=>$exists);
 	}
@@ -114,17 +126,17 @@ class WTFactsAPI extends ApiBase {
 		$title = $titObj->getDbKey();
 		$props = $data->getProperties();
 		$res = $dbr->query(
-			"SELECT rev_user_text, rev_user, rev_comment FROM revision a LEFT JOIN page b ON a.rev_page=b.page_id WHERE page_title='$title' AND rev_comment LIKE 'Added PropertyValue%' ORDER BY rev_timestamp DESC"
+			"SELECT rev_user_text, rev_user, rev_comment FROM revision a LEFT JOIN page b ON a.rev_page=b.page_id WHERE page_title='$title' AND (rev_comment LIKE 'Added PropertyValue%' OR rev_comment LIKE 'Set PropertyValue%') ORDER BY rev_timestamp DESC"
 		);
 		$auths = array();
 		if( $res && $dbr->numRows( $res ) > 0 ) {
 			while( $row = $dbr->fetchObject( $res ) ) {
-				if(preg_match("/Added PropertyValue: (.+) = (.+)\s*$/", $row->rev_comment, $m)) {
-					$prop = ucfirst(preg_replace('/\s/','_',$m[1]));
+				if(preg_match("/(Added|Set) PropertyValue: (.+) = (.+)\s*$/", $row->rev_comment, $m)) {
+					$prop = ucfirst(preg_replace('/\s/','_',$m[2]));
 					$propDI = array_key_exists($prop, $props) ? $props[$prop] : null;
 					if(!$propDI) continue;
 					$sprop = strtolower($prop);
-					$val = $m[2];
+					$val = $m[3];
 					$val = preg_replace("/^http:\/?\/?/i", "", $val);
 					$val = preg_replace("/^mailto:/i", "", $val);
 					$valDV = SMWDataValueFactory::newTypeIdValue ($propDI->findPropertyTypeId(), $val);
@@ -161,7 +173,8 @@ class WTFactsAPI extends ApiBase {
 	}
 
 	public static function getFacts($title, $data=null) {
-		$blacklist = array("Answer", "SubTask", "Answered", "Workflow", 
+		$blacklist = array(
+				"Answer", "SubTask", "Answered", "Workflow", 
 				"WorkflowDataVariable", "WorkflowParamVariable", "WorkflowProcessVariable",
 				"WorkflowContributor", "WorkflowDataArtifact", "WorkflowInputDataArtifact", 
 				"WorkflowParamArtifact", "WorkflowProcess", "ExecutedWorkflow", "WorkflowCreatedIn", 
@@ -210,6 +223,48 @@ class WTFactsAPI extends ApiBase {
 		return array( "Success", $facts, "Facts for $title");
 	}
 
+	public static function getCategoryProperties($cat) {
+		$titObj = Title::newFromText("Category:".$cat);
+		$subject = SMWDIWikiPage::newFromTitle( $titObj );
+		$data = WTFactsAPI::getSemanticData( $subject );
+
+		$vals = array();
+		$prop = SMWDIProperty::newFromUserLabel( "Has_property" );
+		$valobjs = $data->getPropertyValues($prop);
+		foreach ( $valobjs as $propDI ) {
+			$vals[] = WTFactsAPI::getPropertyDetails($propDI->getDbKey());
+		}
+		return $vals;
+	}
+
+	public static function getPropertyDetails($plabel) {
+		$pdetails = array();
+		$propDI = SMWDIProperty::newFromUserLabel( $plabel );
+
+		$titObj = Title::newFromText("Property:".$plabel);
+		$subject = SMWDIWikiPage::newFromTitle( $titObj );
+		$data = WTFactsAPI::getSemanticData( $subject );
+
+		$proptype  = $propDI->findPropertyTypeId();
+		$pdetails['label'] = $propDI->getLabel();
+		$pdetails['exists'] = $titObj->exists();
+		$pdetails['type'] = $proptype;
+
+		if($proptype == "_wpg") {
+			$catprop = SMWDIProperty::newFromUserLabel( "Has_page_category" );
+			$valobjs = $data->getPropertyValues($catprop);
+			foreach ( $valobjs as $di ) {
+				$pdetails['category'] = $di->getDbKey();
+			}
+		}
+		$iconprop = SMWDIProperty::newFromUserLabel( "Fontawesome_icon" );
+		$valobjs = $data->getPropertyValues($iconprop);
+		foreach ( $valobjs as $di ) {
+			$pdetails['icon'] = WTFactsAPI::getDIText($di);
+		}
+		return $pdetails;
+	}
+
 	public static function processSubobjects($subobjs, $data) {
 		if(!$subobjs) return;
 		$title = $data->getSubject()->getDBKey();
@@ -242,9 +297,15 @@ class WTFactsAPI extends ApiBase {
 		return $ret;
 	}
 
+	public static function replaceSpecialCharacters($text){
+		$text = preg_replace("/\//", " or ", $text);
+		$text = preg_replace('/[^A-Za-z0-9\-\_ ]/', ' ', $text); // replace all special chars with a space
+		return preg_replace ("/ +/", " ", $text); // remove multiple spaces
+	}
+
 	public static function addFact($title, $property, $value, $type=null, $create_prop=true, $subobjs=null) {
 		if($property == "SubTask") 
-			$value = preg_replace("/\//", " or ", $value);
+			$value = WTFactsAPI::replaceSpecialCharacters($value);
 		$ptitle = Title::newFromText("Property:".$property);
 		if(!$ptitle->exists() && $create_prop) {
 			$type = WTFactsAPI::guessValueType($value);
@@ -367,6 +428,24 @@ class WTFactsAPI extends ApiBase {
 			return WTFactsAPI::updateWiki($title, $summary, $data);
 		}
 	}
+	
+	public static function setFact($title, $property, $value, $oldvalue) {
+		if($property == "SubTask") 
+			$value = WTFactsAPI::replaceSpecialCharacters($value);
+		$subTitle = Title::newFromText($title);
+		$subject = SMWDIWikiPage::newFromTitle( $subTitle );
+		$data = WTFactsAPI::getSemanticData( $subject );
+
+		$propDI = SMWDIProperty::newFromUserLabel( $property );
+		$valDI = null;
+		if($value != "") {
+			$valDV = SMWDataValueFactory::newPropertyObjectValue( $propDI, $value );
+			$valDI = $valDV->getDataItem();
+		}
+		$data = WTFactsAPI::setPropValInData($subject, $data, $propDI, $valDI, $oldvalue);
+		$summary = "Set PropertyValue: $property = $value";
+		return WTFactsAPI::updateWiki($title, $summary, $data);
+	}
 
 	public static function addFactsMultiple($title, $pvarray, $create_prop=true) {
 		$subTitle = Title::newFromText($title);
@@ -475,6 +554,23 @@ class WTFactsAPI extends ApiBase {
 		$subarr = $data->getSubSemanticData();
 		foreach($subarr as $sub) 
 			$newdata->addSubSemanticData($sub);
+		return $newdata;
+	}
+
+	private static function setPropValInData($subject, $data, $propDI, $valDI, $oldvalue) {
+		$newdata = new SMWSemanticData($subject);
+		foreach ( $data->getProperties() as $pDI ) {
+			$values = $data->getPropertyValues( $pDI );
+			foreach ( $values as $vDI ) 
+				if($propDI->getKey() != $pDI->getKey()) 
+					$newdata->addPropertyObjectValue( $pDI, $vDI );
+				else if($oldvalue && WTFactsAPI::getDIText($vDI) != $oldvalue)
+					$newdata->addPropertyObjectValue( $pDI, $vDI );
+		}
+		if($valDI) {
+			$valDI = WTFactsAPI::fixDI($valDI);
+			$newdata->addPropertyObjectValue( $propDI, $valDI );
+		}
 		return $newdata;
 	}
 
@@ -896,6 +992,8 @@ class WTFactsAPI extends ApiBase {
 			return "Number";
 		if(preg_match('/^\d+\.\d+$/', $value))
 			return "Number";
+		if(preg_match('/^[2][0-9]{3}[-][0-1][0-9][-][0-3][0-9]/', $value))
+			return "Date";
 		if(preg_match('/^(true|false)$/i', $value))
 			return "Boolean";
 		if(preg_match("/^http/", $value))
@@ -909,13 +1007,13 @@ class WTFactsAPI extends ApiBase {
 		return "Page";
 	}
 
-	private static function createPageWithCategory($title, $category) {
+	public static function createPageWithCategory($title, $category) {
 		$text = "[[Category:$category]]\n";
 		$summary = "Creating new page with Category: $category";
 		return WTFactsAPI::createWikiPage($title, $text, $summary);
 	}
 
-	private static function createWikiPage($title, $text, $summary) {
+	public static function createWikiPage($title, $text, $summary) {
 		$article = new Article(Title::newFromText($title));
 		$status = $article->doEdit($text, $summary);
 		if ($status->isOK()) {
@@ -925,7 +1023,7 @@ class WTFactsAPI extends ApiBase {
 		}
 	}
 
-	private static function deleteWikiPage($title, $reason) {
+	public static function deleteWikiPage($title, $reason) {
 		$article = new Article(Title::newFromText($title));
 		$article->doDelete($reason);
 	}
@@ -937,6 +1035,7 @@ class WTFactsAPI extends ApiBase {
 			'category' => null,
 			'property' => null,
 			'value' => null,
+			'oldvalue' => null,
 			'subobjectsjson' => null,
 			'type' => null
 		);
@@ -944,10 +1043,11 @@ class WTFactsAPI extends ApiBase {
 
 	protected function getParamDescription() {
 		return array (
-			'operation' => 'Operation to be performed. One of show, add, del, newpage, updatesubobjects',
+			'operation' => 'Operation to be performed. One of show, add, del, set, newpage, updatesubobjects',
 			'title' => 'Title of the page (required)',
 			'property' => 'Property of the page (required for add, del)',
 			'value' => 'Value of the page Property (required for add)',
+			'oldvalue' => 'Old Value of the page Property (optional for set)',
 			'subobjectsjson' => 'Json encoded Subobjects information to add '.
 								'[{id:<subobjname>, properties:[{<propname>:<propval>}..] ]',
 			'type' => 'Type of the Property value. One of page, number, boolean (optional for add)',

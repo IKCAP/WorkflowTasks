@@ -10,8 +10,8 @@ WTSubTasks.prototype.getListItem = function( list, subdata, answers, is_sub ) {
 	var sub_li = $j('<li></li>');
 
 	var me = this;
-	if(!is_sub) {
-		var delhref = $j('<a class="lodlink">[x]</a>');
+	if(!is_sub && wtuid) {
+		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		// Minus [-] link's event handler
 		delhref.click( function(e) {
 			list.mask(lpMsg('Removing SubTask..'));
@@ -53,7 +53,7 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 		var ival = $j('<input style="width:30%" type="text" />');
 		var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 		var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
-		var addsub_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
+		var addsub_li = $j('<li></li>');
 		addsub_li.append(ival).append(igo).append(icancel).hide();
 		list.append(addsub_li);
 
@@ -100,8 +100,9 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 WTSubTasks.prototype.appendParents = function( item ) {
 	if( !this.tree.Parents || !this.tree.Parents.length ) return;
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Parent Tasks');
+	var header = $j('<div class="heading"></div>').append($j('<b>Parent Tasks</b>'));
 	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
 
 	var list = $j('<ul style="margin-bottom:8px"></ul>');
 	$j.each(this.tree.Parents, function(ind, par) {
@@ -110,30 +111,31 @@ WTSubTasks.prototype.appendParents = function( item ) {
 		list.append($j("<li></li>").append(link));
 	});
 
-	item.append(list);
+	wrapper.append(list);
+	item.append(wrapper);
 }
 
 WTSubTasks.prototype.display = function( item ) {
 	var me = this;
 
-	item.data('numchecked', 0);
-	item.data('checked_data', []);
 	item.data('data', me.tree);
 
 	var list = me.getTree( item, me.tree );
 
-	var addsub_link = $j('<a class="x-small lodbutton">' + lpMsg('Add') + '</a>');
-	addsub_link.click(function( e ) {
-		list.find('li:first').css('display', '');
-	});
+	var addsub_link = '';
+	if(wtuid) {
+		addsub_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addsub_link.click(function( e ) {
+			list.find('li:first').css('display', '');
+		});
+	}
 
 	this.appendParents(item);
-
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Sub Tasks');
-	var toolbar = $j('<div></div>').append(header).append(addsub_link);
-	//toolbar.append(me.util.getHelpButton('add_subtask')));
-
-	item.append(toolbar);
-	item.append(list);
+ 	var headtitle = "Sub " + (wtcategories['Procedure'] ? 'Procedures' : 'Tasks');
+	var header = $j('<div class="heading"></div>').append($j('<b>'+headtitle+'</b>')).append(' ').append(addsub_link);
+	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

@@ -15,20 +15,21 @@ WTUserProvidedData.prototype.getListItem = function( list, data ) {
 	var data_li = $j('<li></li>');
 
 	var me = this;
-	var delhref = $j('<a class="lodlink">[x]</a>');
-	// Minus [-] link's event handler
-	delhref.click( function(e) {
-		list.mask(lpMsg('Removing Data Name..'));
-		me.api.removeDataWikiLink( me.title, data.location, function(resp) {
-			list.unmask();
-			if(!resp || !resp.wtfacts) return;
-			if(resp.wtfacts.result == 'Success') {
-				me.add_data_link.css('display', '');
-				data_li.remove();
-			}
+	if(wtuid) {
+		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref.click( function(e) {
+			list.mask(lpMsg('Removing Data Name..'));
+			me.api.removeDataWikiLink( me.title, data.location, function(resp) {
+				list.unmask();
+				if(!resp || !resp.wtfacts) return;
+				if(resp.wtfacts.result == 'Success') {
+					me.add_data_link.css('display', '');
+					data_li.remove();
+				}
+			});
 		});
-	});
-	data_li.append(delhref).append(' ');
+		data_li.append(delhref).append(' ');
+	}
 	
 	var wflink = data.location.replace(/\s/g,'_');
 	data_li.append($j('<a href="./File:'+wflink+'"></a>').append("<b>"+wflink+"</b>"));
@@ -100,17 +101,21 @@ WTUserProvidedData.prototype.display = function( item ) {
 
 	var list = me.getList( item, me.details );
 
-	me.add_data_link = $j('<a class="x-small lodbutton">' + lpMsg('Provide Data Name') + '</a>');
-	me.add_data_link.click(function( e ) {
-		list.find('li:first').css('display', '');
-	});
+	if(wtuid) {
+		me.add_data_link = $j('<a class="x-small lodbutton">' + lpMsg('Provide Data Name') + '</a>');
+		me.add_data_link.click(function( e ) {
+			list.find('li:first').css('display', '');
+		});
+		if(me.details && me.details.WTUserProvidedData.location)
+			me.add_data_link.css('display', 'none');
+	}
 
-	if(me.details && me.details.WTUserProvidedData.location)
-		me.add_data_link.css('display', 'none');
-
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('User Provided Data');
-	var toolbar = $j('<div></div>').append(header).append(me.add_data_link);
-	item.append(toolbar);
-	item.append(list);
+	var header = $j('<div class="heading"></div>').append($j('<b>User Provided Data</b>'));
+	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
+	var toolbar = $j('<div></div>').append(me.add_data_link);
+	wrapper.append(toolbar);
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

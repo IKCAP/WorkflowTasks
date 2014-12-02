@@ -8,12 +8,13 @@ var WTCredits = function(title, tree, util, api ) {
 WTCredits.prototype.display = function( item ) {
 	var me = this;
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Credits');
+	var header = $j('<div class="heading"></div>').append($j('<b>Credits</b>'));
 	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
 	if(wtcategories['Task']) 
-		item.append("<div>Users who have contributed to this Task, its SubTasks and Answers:</div>");
+		wrapper.append("<div>Users who have contributed to this Task, its SubTasks and Answers:</div>");
 	else 
-		item.append("<div>Users who have contributed to this Page:</div>");
+		wrapper.append("<div>Users who have contributed to this Page:</div>");
 
 	var contributors = me.tree.Contributors;
 	var list = $j('<ul></ul>');
@@ -21,7 +22,7 @@ WTCredits.prototype.display = function( item ) {
 		var userlink = $j("<a href='./User:"+name+"'>"+name+"</a>");
 		list.append($j("<li></li>").append(userlink).append(" ("+details[1]+" Edits)"));
 	});
-
-	item.append(list);
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

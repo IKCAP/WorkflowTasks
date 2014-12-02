@@ -10,19 +10,20 @@ WTAnswers.prototype.getListItem = function( list, ansdata ) {
 	var ans_li = $j('<li></li>');
 
 	var me = this;
-	var delhref = $j('<a class="lodlink">[x]</a>');
-	// Minus [-] link's event handler
-	delhref.click( function(e) {
-		list.mask(lpMsg('Removing Answer..'));
-		me.api.removeAnswer( me.title, ansdata.text, function(resp) {
-			list.unmask();
-			if(!resp || !resp.wtfacts) return;
-			if(resp.wtfacts.result == 'Success') {
-				ans_li.remove();
-			}
+	if(wtuid) {
+		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref.click( function(e) {
+			list.mask(lpMsg('Removing Answer..'));
+			me.api.removeAnswer( me.title, ansdata.text, function(resp) {
+				list.unmask();
+				if(!resp || !resp.wtfacts) return;
+				if(resp.wtfacts.result == 'Success') {
+					ans_li.remove();
+				}
+			});
 		});
-	});
-	ans_li.append(delhref).append(' ');
+		ans_li.append(delhref).append(' ');
+	}
 
 	var ans_cls = ansdata.exists ? '' : 'new';
 	ans_li.append($j('<a class="'+ans_cls+'" href="'+ansdata.key+'"></a>').append(ansdata.text));
@@ -89,16 +90,18 @@ WTAnswers.prototype.display = function( item ) {
 
 	var list = me.getList( item, me.tree );
 
-	var addans_link = $j('<a class="x-small lodbutton">' + lpMsg('Add') + '</a>');
-	addans_link.click(function( e ) {
-		list.find('li:first').css('display', '');
-	});
+	var addans_link = '';
+	if(wtuid) {
+		addans_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addans_link.click(function( e ) {
+			list.find('li:first').css('display', '');
+		});
+	}
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Answers to this Task');
-	var toolbar = $j('<div></div>').append(header).append(addans_link);
-	//toolbar.append(me.util.getHelpButton('add_answer')));
-
-	item.append(toolbar);
-	item.append(list);
+	var header = $j('<div class="heading"></div>').append($j('<b>Answers</b>')).append(' ').append(addans_link);
+	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

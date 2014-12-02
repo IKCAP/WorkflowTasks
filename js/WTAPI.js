@@ -111,12 +111,20 @@ WTAPI.prototype.removeFact = function( subject, predicate, object, callbackfunct
 	this.removeFactRaw(subject, predicate, object, null, callbackfunction);
 };
 
+WTAPI.prototype.setFact = function( subject, predicate, object, oldobject, callbackfunction ) {
+	this.setFactRaw(subject, predicate, object, oldobject, null, callbackfunction);
+};
+
 WTAPI.prototype.addFactComplex = function( subject, predicate, object, subobjs, callbackfunction ) {
 	this.addFactRaw(subject, predicate, object, JSON.stringify(subobjs), callbackfunction);
 };
 
 WTAPI.prototype.removeFactComplex = function( subject, predicate, object, subobjs, callbackfunction ) {
 	this.removeFactRaw(subject, predicate, object, JSON.stringify(subobjs), callbackfunction);
+};
+
+WTAPI.prototype.setFactComplex = function( subject, predicate, object, subobjs, callbackfunction ) {
+	this.setFactRaw(subject, predicate, object, JSON.stringify(subobjs), callbackfunction);
 };
 
 WTAPI.prototype.addFactRaw = function( subject, predicate, object, subobjectsjson, callbackfunction ) {
@@ -139,6 +147,20 @@ WTAPI.prototype.removeFactRaw = function( subject, predicate, object, subobjects
 		"title"           : subject,
 		"property"        : predicate,
 		"value"           : object,
+		"subobjectsjson"  : subobjectsjson,
+		"format"          : "json",
+		"token"    : this.editToken
+	}, callbackfunction, "json");
+};
+
+WTAPI.prototype.setFactRaw = function( subject, predicate, object, oldobject, subobjectsjson, callbackfunction ) {
+	$j.post(this.apiuri, {
+		"action"          : "wtfacts",
+		"operation"       : "set",
+		"title"           : subject,
+		"property"        : predicate,
+		"value"           : object,
+		"oldvalue"        : oldobject,
 		"subobjectsjson"  : subobjectsjson,
 		"format"          : "json",
 		"token"    : this.editToken
@@ -176,4 +198,3 @@ WTAPI.prototype.setToken = function() {
 			me.editToken =  result.query.pages[i].edittoken;
 	});
 };
-

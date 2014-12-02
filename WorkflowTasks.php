@@ -28,6 +28,8 @@ $wgAutoloadClasses['WTMainPage'] = $wgAbsDir . '/includes/WTMainPage.inc';
 $wgAutoloadClasses['WTFactsAPI'] = $wgAbsDir . '/includes/WTFactsAPI.inc';
 $wgAutoloadClasses['WTSuggestAPI'] = $wgAbsDir . '/includes/WTSuggestAPI.inc';
 $wgAutoloadClasses['WTPerson'] = $wgAbsDir . '/includes/WTPerson.inc';
+$wgAutoloadClasses['WTSampleCollection'] = $wgAbsDir . '/includes/WTSampleCollection.inc';
+#$wgAutoloadClasses['WTCurationProcedure'] = $wgAbsDir . '/includes/WTCurationProcedure.inc';
 
 $wgAPIModules['wtfacts'] = 'WTFactsAPI';
 $wgAPIModules['wtsuggest'] = 'WTSuggestAPI';
@@ -56,7 +58,8 @@ function WTRender (&$out, &$skin) {
 	else if ($ns === SMW_NS_PROPERTY) {
 		$item = new WTProperty($title);
 	}
-	else if(in_array("Task", $cats)) { 
+	else if(in_array("Task", $cats) ||
+			in_array("Procedure", $cats)) { 
 		$item = new Task($title);
 	}
 	else if(in_array("Answer", $cats)) {
@@ -77,6 +80,12 @@ function WTRender (&$out, &$skin) {
 	else if(in_array("UserDescribedData", $cats)) {
 		$item = new WTUserDescribedData($title);
 	}
+	else if(in_array("SampleCollection", $cats)) {
+		$item = new WTSampleCollection($title);
+	}
+	/*else if(in_array("CurationProcedure", $cats)) {
+		$item = new WTCurationProcedure($title);
+	}*/
 	else if(in_array("Component", $cats)) {
 		$item = new WTComponent($title);
 	}

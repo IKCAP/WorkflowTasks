@@ -8,7 +8,7 @@ var WTPerson = function(title, details, util, api ) {
 WTPerson.prototype.display = function( item ) {
 	var me = this;
 	item.data('data', me.details);
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Recent Contributions');
+	var header = $j('<div class="heading"></div>').append($j('<b>Recent Contributions</b>'));
 	item.append(header);
 
 	var contribs = me.details.WTPerson.contributions;
@@ -21,9 +21,9 @@ WTPerson.prototype.display = function( item ) {
 	var topdiv = $j('<div class="scroller"></div>');
 	var table = $j('<table class="contribs"></table>');
 	var tr = $j('<tr></tr>');
-	tr.append('<th>Time</th>');
-	tr.append('<th>Page</th>');
-	tr.append('<th>Comment</th>');
+	tr.append('<th style="text-align:left">Time</th>');
+	tr.append('<th style="text-align:left">Page</th>');
+	tr.append('<th style="text-align:left">Comment</th>');
 	table.append(tr);
 	
 	for(var i=0; i<contribs.length; i++) {

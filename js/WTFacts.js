@@ -1,100 +1,156 @@
-var WTFacts = function(title, wtfacts, util, api ) {
+var WTFacts = function(title, wtfacts, stdprops, util, api ) {
 	this.title = title;
 	this.wtfacts = wtfacts;
+	this.stdprops = stdprops;
 	this.util = util;
 	this.api = api;
+};
+
+WTFacts.prototype.closeAllEdits = function() {
+	var me = this;
+	me.$table.find('.row').each(function(k, row){		
+		$row = $(row);
+		$row.removeClass('edit');
+		var fact = $row.data('fact');
+		if(fact)
+			$row.find('.content').html(me.generateContent(fact));
+	});
+};
+
+WTFacts.prototype.generateContent = function(fact) {
+	var me = this;
+	var pname = fact.property.name;
+	var property = this.stdprops[pname];
+	var valobj = fact.value;
+	$valentity = "";
+	if(valobj) {
+    	$valentity = $("<span></span>");
+		$valentity.html(valobj.text);
+    	if(valobj.type == 'WikiPage') {
+        	var valcls = valobj.exists ? '' : 'new';
+        	$valentity = $("<a href='"+valobj.key+"' class='"+valcls+"'>"+valobj.val.replace(/_/g,' ')+"</a>");
+			$valentity.click(function( e ) { e.stopPropagation(); });
+    	}
+    	else if(valobj.type == 'Uri') {
+        	var valtext = valobj.val.replace(/Www/, 'www');
+        	$valentity = $("<a href='"+valobj.val+"'>"+valtext+"</a>");
+			$valentity.click(function( e ) { e.stopPropagation(); });
+    	}
+	}
+	return $valentity;
 };
 
 WTFacts.prototype.getfactrow = function( fact, item, data ) {
 	var me = this;
 
-	var tr = $j('<tr class="fact"></tr>');
+	var tr = $('<div class="row"></div>');
+	tr.data('fact', fact);
+	tr.click(function(e){
+		$t = $(this);
+		if(!$t.hasClass('edit') && wtuid){
+			me.closeAllEdits();
+			$t.addClass('edit');
+			var pname = fact.property.name;
+			$content = $t.find('.content');
+			$in = $('<input type="text" style="width:100%;"/>');
+			var valobj = fact.value;
+			if(valobj)
+				$in.val(valobj.val);
+			$in.keyup(function(e){
+				if(e.keyCode == 13){
+					var v = $in.val();
+					me.$table.mask('Setting '+pname);
+					me.api.setFact(me.title, pname, v, valobj.val, function(response){
+						me.$table.unmask();
+						if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
+						if(response.wtfacts.result == 'Success') {
+							me.wtfacts = response.wtfacts.facts;
+							item.children('.table').remove();
+							item.append(me.getfactstable(item, response.wtfacts.facts));
+						}
+        			});
+				}
+			});
+			$content.html('');
+			$content.append($in);
+			$in.focus();
+		}
+		e.stopPropagation();
+	});	
 
-	var delhref = $j('<a class="lodlink">[x]</a>');
-	tr.append($j('<td style="width:2em" valign="top" align="left"></td>').append(delhref));
-
-	// Minus [-] link's event handler
-	delhref.click( function(e) {
-		item.mask(lpMsg('Removing Fact..'));
-		me.api.removeFact( me.title, fact.property.name, fact.value.val, function(resp) {
-			item.unmask();
-			if(!resp || !resp.wtfacts || !resp.wtfacts.facts) return;
-			if(resp.wtfacts.result == 'Success') {
-				item.children('table').remove();
-				item.append(me.getfactstable(item, resp.wtfacts.facts));
-				//me.util.showFacts([{p:fact.property, o:fact.value}]);
-			}
+	// Delete link and event handler
+	var delhref = '';
+	if(wtuid) {
+		delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref.click( function(e) {
+			item.mask(lpMsg('Removing Fact..'));
+			me.api.removeFact( me.title, fact.property.name, fact.value.val, function(resp) {
+				item.unmask();
+				if(!resp || !resp.wtfacts || !resp.wtfacts.facts) return;
+				if(resp.wtfacts.result == 'Success') {
+					item.children('.table').remove();
+					item.append(me.getfactstable(item, resp.wtfacts.facts));
+					//me.util.showFacts([{p:fact.property, o:fact.value}]);
+				}
+			});
 		});
-	});
-
-	var subtable = $j('<table class="lod-facts-inner-table"></table>');
-	tr.append($j('<td></td>').append(subtable));
+	}
+	else {
+		delhref = $j('<i class="fa fa-tag fa-lg" style="color:#667"></i>');
+	}
 
 	var lprop = fact.property.name;
 	var propcls = fact.property.exists ? 'lodlink' : 'lodlink new';
 	var propuri = wgScriptPath + '/index.php/Property:' + fact.property.name;
 	var propentity = $j('<a href="' + propuri + '" class="'+propcls+'">' + lprop + '</a>');
 
-	var valentity = fact.value.text;
-	if(fact.value.type == 'WikiPage') {
-		var valcls = fact.value.exists ? '' : 'new';
-		valentity = "<a href='"+fact.value.key+"' class='"+valcls+"'>"+fact.value.val.replace(/_/g,' ')+"</a>";
-	}
-	else if(fact.value.type == 'Uri') {
-		var valtext = fact.value.val.replace(/Www/, 'www');
-		valentity = "<a href='"+fact.value.val+"'>"+valtext+"</a>";
-	}
+	var valentity = me.generateContent(fact);
+	var authtext = "(By "+fact.value.author+")";
+	tr.append($j('<div class="cell icon"></div>').append(delhref));
+	tr.append($j('<div class="cell label"></div>').append(propentity));
+	tr.append($j('<div class="cell content"></div>').append(valentity));
+	tr.append($j('<div class="cell author"></div>').html(authtext));
 
-	var authentity = "<span style='font-size:9px;color:#999'>(By "+fact.value.author+")</span>";
-	var subtr = $j('<tr></tr>');
-	subtr.append($j('<td style="width:30%"></td>').append(propentity));
-	subtr.append($j('<td></td>').append(valentity));
-	subtr.append($j('<td style="width:15%"></td>').append(authentity));
-	subtable.append(subtr);
-
-	tr.data('data', [fact.property, fact.value, fact.sources]);
 	return tr;
 };
 
 WTFacts.prototype.blacklist = ['SubTask', 'Answer', 'Answered', 'Workflow', 'DataLocation', 'DataWikiLocation', 'DataExtractedFrom', 'Columns'];
 
 WTFacts.prototype.getfactstable = function( item, data ) {
-	var table = $j('<table id="facts-table" class="lod-table"></table>');
+	var table = $j('<div class="table"></div>');
 
-	var iprop = $j('<input style="width:30%" type="text"/>');
-	var ival = $j('<input style="width:30%" type="text" />');
+	var iprop = $j('<input style="width:97%" type="text"/>');
+	var ival = $j('<input style="width:99%" type="text" />');
 	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
-	var addfact_tr = $j('<tr></tr>').append($j('<td style="width:24px"></td>'));
-	addfact_tr.append($j('<td></td>').append(iprop).append(' ').append(ival).append(igo).append(icancel)).hide();
+
+	var addfact_tr = $j('<div class="row"></div>');
+	addfact_tr.append($j('<div class="cell icon"></div>'));
+	addfact_tr.append($j('<div class="cell label"></div>').append(iprop));
+	addfact_tr.append($j('<div class="cell content"></div>').append(ival));
+	addfact_tr.append($j('<div class="cell"></div>').append(igo).append(icancel)).hide();
 	table.append(addfact_tr);
 
 	var me = this;
 
 	iprop.autocomplete({
-		api: me.api,
-		position: 'property',
-		minChars:1,
-		maxHeight:200,
-		deferRequestBy:300,
-		width:'100%',
-		zIndex:9999,
-		onSelect: function(value, data) { iprop.data('val', data); }
+		delay:300,
+		minLength:1,
+		source: function(request, response) {
+			var item = this;
+			me.api.getSuggestions(request.term, 'property', function(sug) {
+				response.call(this, sug.wtsuggest.suggestions);
+			});
+		},
+		select: function(e, ui) {
+			iprop.data('val', ui.item.value);
+		}
 	});
-	/*ival.autocomplete({
-		api: me.api,
-		position: 'object',
-		minChars:1,
-		maxHeight:200,
-		deferRequestBy:300,
-		width:'100%',
-		zIndex:9999,
-		onSelect: function(value, data) { ival.data('val', data); }
-	});*/
 
 	if(data) {
 		$j.each(data, function(prop, propdata) {
-			if($j.inArray(prop, me.blacklist) == -1) {
+			if(($j.inArray(prop, me.blacklist) == -1)  &&
+				(!me.stdprops[prop])) {
 				if(!propdata.values) return;
 				$j.each(propdata.values, function(key, val) {
 					var fact = {property:{name:prop, exists:propdata.exists}, value:val};
@@ -111,7 +167,13 @@ WTFacts.prototype.getfactstable = function( item, data ) {
 		addfact_tr.hide();
 	});
 
-	igo.click(function( e ) {
+	igo.click(function(e) { localAddFact(); });
+	ival.keyup(function(e){
+		if(e.keyCode == 13){ localAddFact(); }
+	});
+			
+
+	function localAddFact() {
 		var prop = iprop.data('val') ? iprop.data('val') : iprop.val();
 		var val = ival.data('val') ? ival.data('val') : ival.val();
 		addfact_tr.hide();
@@ -122,46 +184,41 @@ WTFacts.prototype.getfactstable = function( item, data ) {
 		item.mask(lpMsg('Adding Fact..'));
 		me.api.addFact( me.title, prop, val, function(response) {
 			item.unmask();
-			if(!response || !response.wtfacts || !response.wtfacts.facts) return; // TODO Error message?
-			// Redrawing the whole box, i.e. removing the old facts, adding the new ones
-			item.find('.fact').remove();
-			item.find('.urirow').remove();
-			var tr = null;
-			$j.each(response.wtfacts.facts, function(prop, propdata) {
-				if($j.inArray(prop, me.blacklist) == -1) {
-					$j.each(propdata.values, function(key, val) {
-						var fact = {property:{name:prop, exists:propdata.exists}, value:val};
-						var tr = me.getfactrow(fact, item, data);
-						table.append(tr);
-					});
-				}
-			});
+			if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
+			if(response.wtfacts.result == 'Success') {
+				me.wtfacts = response.wtfacts.facts;
+				item.children('.table').remove();
+				item.append(me.getfactstable(item, response.wtfacts.facts));
+			}
 		});
-	});
+	}
 
 	item.data('table', table);
 	return table;
 };
 
-
 WTFacts.prototype.display = function( item ) {
 	var me = this;
 
-	item.data('numchecked', 0);
-	item.data('checked_data', []);
 	item.data('data', me.wtfacts);
 
-	var table = me.getfactstable( item, me.wtfacts );
+	me.$table = me.getfactstable( item, me.wtfacts );
 
-	var addfact_link = $j('<a class="x-small lodbutton">' + lpMsg('Add') + '</a>');
-	addfact_link.click(function( e ) {
-		var table = item.data('table');
-		table.find('tr:first').css('display', '');
-	});
+	var addfact_link = '';
+	if(wtuid) {
+		addfact_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addfact_link.click(function( e ) {
+			var table = item.data('table');
+			table.find('div.row:first').css('display', '');
+		});
+	}
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Structured Properties');
-	item.append(header).append(addfact_link);
+	var header = $j('<div class="heading"></div>').append($j('<b>Properties</b>').append(' ').append(addfact_link));
+	item.append(header);
 	//item.append(me.util.getHelpButton('add-fact'));
-	item.append(table);
-};
+	item.append(me.$table);
 
+	$('body').click(function() {
+		me.closeAllEdits();
+	});
+};

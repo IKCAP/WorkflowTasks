@@ -8,9 +8,12 @@ var WTTasks = function(title, details, util, api ) {
 WTTasks.prototype.display = function( item ) {
 	var me = this;
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Tasks Answered');
+	var header = $j('<div class="heading"></div>').append($j('<b>Tasks Answered</b>'));
 	item.append(header);
-	item.append("<div>This page answers the following Tasks:</div>");
+	var wrapper = $j('<div style="padding:5px"></div>');
+	item.append(wrapper);
+
+	wrapper.append("<div>This page answers the following Tasks:</div>");
 
 	var tasks = me.details.Tasks;
 	var list = $j('<ul></ul>');
@@ -20,6 +23,7 @@ WTTasks.prototype.display = function( item ) {
 		list.append($j("<li></li>").append(qlink));
 	});
 
-	item.append(list);
+	wrapper.append(list);
+	item.append(wrapper);
 };
 

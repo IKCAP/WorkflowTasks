@@ -17,34 +17,37 @@ WTDataColumns.prototype.getListItem = function( list, col ) {
 	var col_li = $j('<li class="column"></li>');
 
 	var me = this;
-	var delhref = $j('<a class="lodlink">[x]</a>');
-	// Delete [x] link's event handler
-	delhref.click( function(e) {
-		list.mask(lpMsg('Removing Column..'));
-		var newlist = me.createNewList(list, null, col.key);
-		me.api.removeDataColumn( me.title, col.key, newlist, function(resp) {
-			list.unmask();
-			if(!resp || !resp.wtfacts) return;
-			if(resp.wtfacts.result == 'Success') {
-				col_li.remove();
-			}
+	var delhref = '';
+	var movehref = '';
+	if(wtuid) {
+		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref.click( function(e) {
+			list.mask(lpMsg('Removing Column..'));
+			var newlist = me.createNewList(list, null, col.key);
+			me.api.removeDataColumn( me.title, col.key, newlist, function(resp) {
+				list.unmask();
+				if(!resp || !resp.wtfacts) return;
+				if(resp.wtfacts.result == 'Success') {
+					col_li.remove();
+				}
+			});
 		});
-	});
-	var movehref = $j('<a class="lodlink">[^]</a>');
-	// Move [^] link's event handler
-	movehref.click( function(e) {
-		list.mask(lpMsg('Moving column up..'));
-		var newlist = me.createNewList(list, null, null, col.key);
-		me.api.moveDataColumn( me.title, newlist, function(resp) {
-			list.unmask();
-			if(!resp || !resp.wtfacts) return;
-			if(resp.wtfacts.result == 'Success') {
-				list.data('data', resp.wtfacts.facts);
-				$("li.column").remove();
-				me.fillList(list);
-			}
+		var movehref = $j('<a class="lodlink"><i class="fa fa-arrow-up"></i></a>');
+		// Move [^] link's event handler
+		movehref.click( function(e) {
+			list.mask(lpMsg('Moving column up..'));
+			var newlist = me.createNewList(list, null, null, col.key);
+			me.api.moveDataColumn( me.title, newlist, function(resp) {
+				list.unmask();
+				if(!resp || !resp.wtfacts) return;
+				if(resp.wtfacts.result == 'Success') {
+					list.data('data', resp.wtfacts.facts);
+					$("li.column").remove();
+					me.fillList(list);
+				}
+			});
 		});
-	});
+	}
 	var valcls = col.exists ? '' : 'new';
 	var valentity = "<a href='"+col.key+"' class='"+valcls+"'>"+col.val.replace(/_/g,' ')+"</a>";
 	col_li.append(delhref).append(' ').append(movehref).append(' ');
@@ -105,14 +108,17 @@ WTDataColumns.prototype.getList = function( item, data ) {
 	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 	ival.autocomplete({
-		api: me.api,
-		position: 'columntype',
-		minChars:1,
-		maxHeight:200,
-		deferRequestBy:300,
-		width:'100%',
-		zIndex:9999,
-		onSelect: function(value, data) { ival.data('val', data); }
+		delay:300,
+		minLength:1,
+		source: function(request, response) {
+			var item = this;
+			me.api.getSuggestions(request.term, 'columntype', function(sug) {
+				response.call(this, sug.wtsuggest.suggestions);
+			});
+		},
+		select: function(e, ui) {
+			ival.data('val', ui.item.value);
+		}
 	});
 
 	var addcol_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
@@ -157,21 +163,21 @@ WTDataColumns.prototype.getList = function( item, data ) {
 WTDataColumns.prototype.display = function( item ) {
 	var me = this;
 
-	item.data('numchecked', 0);
-	item.data('checked_data', []);
 	item.data('data', me.details);
 
 	var list = me.getList( item, me.details );
 
-	me.addcol_link = $j('<a class="x-small lodbutton">' + lpMsg('Add Data Column') + '</a>');
-	me.addcol_link.click(function( e ) {
-		list.find('li:last').css('display', '');
-	});
+	if(wtuid) {
+		me.addcol_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		me.addcol_link.click(function( e ) {
+			list.find('li:last').css('display', '');
+		});
+	}
 
-	var header = $j('<h2 style="margin-bottom:5px;margin-top:0px;padding-top:0px"></h2>').append('Data Columns');
-	var toolbar = $j('<div></div>').append(header).append(me.addcol_link);
-	//toolbar.append(me.util.getHelpButton('add_col')));
-	item.append(toolbar);
-	item.append(list);
+	var header = $j('<div class="heading"></div>').append($j('<b>Data Columns</b>')).append(' ').append(me.addcol_link);
+	item.append(header);
+	var wrapper = $j('<div style="padding:5px"></div>');
+	wrapper.append(list);
+	item.append(wrapper);
 };
 
