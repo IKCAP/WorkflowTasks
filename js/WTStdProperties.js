@@ -163,8 +163,9 @@ WTStdProperties.prototype.generateEdit = function(pname, $content) {
 	$in.keyup(function(e){
 		if(e.keyCode == 13){
 			var v = $in.val();
+			var oldv = (valobj && valobj.val) ? valobj.val : null;
 			me.$item.mask('Setting '+p.label);
-			me.api.setFact(me.title, p.label, v, valobj.val, function(response){
+			me.api.setFact(me.title, p.label, v, oldv, function(response){
 				me.$item.unmask();
 				if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
 				me.wtfacts = response.wtfacts.facts;

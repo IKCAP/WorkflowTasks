@@ -59,8 +59,9 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 			$in.keyup(function(e){
 				if(e.keyCode == 13){
 					var v = $in.val();
+					var oldv = (valobj && valobj.val) ? valobj.val : null;
 					me.$table.mask('Setting '+pname);
-					me.api.setFact(me.title, pname, v, valobj.val, function(response){
+					me.api.setFact(me.title, pname, v, oldv, function(response){
 						me.$table.unmask();
 						if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
 						if(response.wtfacts.result == 'Success') {
