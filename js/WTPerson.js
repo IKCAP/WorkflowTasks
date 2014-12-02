@@ -13,8 +13,10 @@ WTPerson.prototype.display = function( item ) {
 
 	var contribs = me.details.WTPerson.contributions;
 	if(!contribs.length) {
-		item.append('No contributions by this person to the wiki.');
-		item.append('<br/><i>Note: If this person exists on the wiki, then add the "Has User ID" property to this page with its value set to the Wiki User ID.</i>'); 
+		var wrapper = $j('<div style="padding:5px"></div>');
+		wrapper.append('No contributions by this person to the wiki.');
+		wrapper.append('<br/><i>Note: If this person exists on the wiki, then add the "Has User ID" property to this page with its value set to the Wiki User ID.</i>'); 
+		item.append(wrapper);
 		return;
 	}
 

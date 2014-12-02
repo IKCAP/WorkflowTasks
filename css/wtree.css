@@ -493,11 +493,11 @@ a.todo:hover {
 
 .props-table{
 	padding: 0px;
-	overflow:hidden; 
-	/*overflow-x:scroll;*/ 
+	overflow:hidden;
 }
 .props-table .table{
 	display: table;
+	table-layout: fixed;
 	width: 100%;
 	padding: 5px 0px;
 }
@@ -518,6 +518,8 @@ a.todo:hover {
 .props-table .row .cell{
 	display: table-cell;
 	padding:2px;
+	overflow:hidden; 
+	text-overflow:ellipsis;
 }
 .props-table .row.fade .cell.icon,
 .props-table .row.fade,
@@ -525,10 +527,11 @@ a.todo:hover {
 	color:#bbbbbb !important;
 }
 .props-table .row .cell.label{
-	width: 150px;
+	width: 20%;
 	white-space: nowrap;
 }
 .props-table .row .cell.author {
+	width: 120px;
 	font-size:9px;
 	color:#999;
 	text-align:right;
@@ -539,6 +542,8 @@ a.todo:hover {
 	width: 18px;
 	padding-left: 6px;
 	text-align: 'center';
+}
+.props-table .row .cell.content{
 }
 .props-table .row .cell.icon .mandatory{
 	vertical-align: 3px; 

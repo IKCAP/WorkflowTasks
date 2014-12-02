@@ -106,10 +106,9 @@ WTUserDescribedData.prototype.display = function( item ) {
 		me.add_data_link.click(function( e ) {
 			list.find('li:first').css('display', '');
 		});
+		if(me.details && me.details.WTUserDescribedData.location)
+			me.add_data_link.css('display', 'none');
 	}
-
-	if(me.details && me.details.WTUserDescribedData.location)
-		me.add_data_link.css('display', 'none');
 
 	var header = $j('<div class="heading"></div>').append($j('<b>User Described Data</b>'));
 	item.append(header);

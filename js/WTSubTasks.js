@@ -131,7 +131,7 @@ WTSubTasks.prototype.display = function( item ) {
 	}
 
 	this.appendParents(item);
- 	var headtitle = "Sub " + (wtcategories['Procedure'] ? 'Procedures' : 'Tasks');
+ 	var headtitle = "Sub" + (wtcategories['Procedure'] ? 'Procedures' : 'Tasks');
 	var header = $j('<div class="heading"></div>').append($j('<b>'+headtitle+'</b>')).append(' ').append(addsub_link);
 	item.append(header);
 	var wrapper = $j('<div style="padding:5px"></div>');
