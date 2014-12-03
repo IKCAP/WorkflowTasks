@@ -507,6 +507,7 @@ a.todo:hover {
 }
 .props-table .row.edit input {
 	width: 99%;
+	font-size: 12px;
 }
 .props-table .row .cell{
 	display: table-cell;
