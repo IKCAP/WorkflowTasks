@@ -13,11 +13,11 @@ class WTSampleCollection extends WTBase {
 		$old = $out->getHTML();
 		$out->clearHTML();
 
-		# -- Add Existing Markup Here
-		$out->addHTML( $old );
-
 		# -- Add the Standard Properties Table
 		$this->addStdPropsDiv( $out );
+
+		# -- Add Existing Markup Here
+		$out->addHTML( $old );
 
 		# -- Add a Facts Table Here
 		$this->addFactsDiv( $out );
@@ -25,8 +25,8 @@ class WTSampleCollection extends WTBase {
 		# -- Credits Div
 		$this->addCreditsDiv( $out );
 
-		# -- Sidebar Div
-		$this->addSidebarDiv( $out );
+		# -- Add the Category Changer
+		$this->addCategoryChooserDiv( $out );
 	}
 
 	function getPageDetails() {

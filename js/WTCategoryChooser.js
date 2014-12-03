@@ -7,36 +7,46 @@ var WTCategoryChooser = function(title, util, api ) {
 WTCategoryChooser.prototype.display = function( item ) {
 	var me = this;
 
-	var select = $('<select></select>');
-	select.append($("<option value=''> -- None -- </option>"));
-	$.each(wtallcategories, function(i, cat) {
-		if(wtcategories[cat]) 
-			select.append($("<option selected='selected' value='"+cat+"'>"+cat+"</option>"));
-		else
-			select.append($("<option value='"+cat+"'>"+cat+"</option>"));
+	var curcat = '';
+	$.each(Object.keys(wtcategories), function(i, cat) {
+		curcat = cat;
 	});
 
-	select.change(function( e ) {
-		var val = select.val();
-		if(!val) return;
+	$select = $('<input type="text" placeholder="Enter a Category (down arrow to see all)" style="width:50%"/>');
+	$select.val(curcat);
+	$select.autocomplete({
+		delay:300,
+		minLength:0,
+		highlightClass:'none',
+		source: wtallcategories
+	});
 
-		item.mask(lpMsg('Setting Category..'));
-		me.api.createPageWithCategory( me.title, val, function(response) {
-			item.unmask();
-			if(!response || !response.wtfacts) return; 
-			if(response.wtfacts.result == 'Success') {
-				window.location.reload();
-			}
-		});
+	$select.keyup(function( e ) {
+		if(e.keyCode == 13){
+			var val = $select.val();
+			item.mask(lpMsg('Setting Category..'));
+			me.api.createPageWithCategory( me.title, val, function(response) {
+				if(!response || !response.wtfacts) return; 
+				if(response.wtfacts.result == 'Success') {
+					window.location.reload();
+				}
+			});
+		}
 	});
 
 	if(wtuid) {
-		var catdiv = $('<div style="padding:5px">Choose a Category for this page:</div>');
-		catdiv.append('<br/>').append(select);
-		item.append(catdiv);
-	}
-	else {
-		item.append($('<div style="padding:5px">No Category</div>'));
+		var header = $('<div class="heading"></div>').append($('<b>Category</b>'));
+		item.append(header);
+		var wrapper = $('<div style="padding:5px"></div>');
+		var txt = "Set Category for this page (will reset contents)";
+		if(wtpagenotfound) 
+			txt = "Create the page by choosing a Category for this page";
+		else if(curcat)
+			var txt = "Change Category for this page (will reset contents)";
+		var catdiv = $('<div>'+txt+':</div>');
+		catdiv.append('<ul></ul>').append($select);
+		wrapper.append(catdiv);
+		item.append(wrapper);
 	}
 };
 

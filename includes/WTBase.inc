@@ -98,7 +98,7 @@ class WTBase {
 
 	function includeCSSHeaders($out, $wgDir) {
 		$out->addExtensionStyle( '//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' );
-		$out->addExtensionStyle( '//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css');
+		$out->addExtensionStyle( '//code.jquery.com/ui/1.11.2/themes/flick/jquery-ui.css');
 		$out->addExtensionStyle( $wgDir . '/css/jquery/jquery.loadmask.css' );
 		$out->addExtensionStyle( $wgDir . '/css/wtree.css' );
 	}
@@ -110,6 +110,7 @@ class WTBase {
 		$out->addHTML("var allwtfacts = ".json_encode($facts).";\n");
 		$out->addHTML("var allwtdetails = ".json_encode($details).";\n");
 		$out->addHTML("var allwttree = {};\n");
+		$out->addHTML("var wtpagenotfound = ".($this->title->exists() ? 'false' : 'true').";\n");
 		$out->addHTML("var wtallcategories = ['SampleCollection','Procedure','Workflow', 'ExecutedWorkflow', 'Task', 'Answer', 'Data', 'UserProvidedData', 'UserDescribedData', 'Component', 'Model', 'Person', 'Object', 'DataType', 'Thing'];\n");
 		//$out->addHTML("var wtallcategories = ['UserProvidedData', 'UserDescribedData', 'Person', 'DataType', 'Thing'];\n");
 		$out->addHTML("var wtcategories = [];\n");
@@ -132,9 +133,6 @@ class WTBase {
 	}
 
 	function modifyWikiPage($out) {
-		# -- Add the Category Changer
-		$this->addCategoryChooserDiv( $out );
-
 		# -- Add the Standard Properties Table
 		$this->addStdPropsDiv( $out );
 
@@ -144,12 +142,12 @@ class WTBase {
 		# -- Credits Div
 		$this->addCreditsDiv( $out );
 
-		# -- Sidebar Div
-		$this->addSidebarDiv( $out );
+		# -- Add the Category Changer
+		$this->addCategoryChooserDiv( $out );
 	}
 
 	function addCategoryChooserDiv($out) {
-		$out->addHTML("<div id='category-chooser'></div>");
+		$out->addHTML("<div id='category-chooser' class='props-table'></div>");
 	}
 
 	function addTreeDiv($out, $type) {
@@ -189,7 +187,7 @@ class WTBase {
 	}
 
 	function addPersonDiv($out) {
-		$out->addHTML("<div id='main-person' class='props-table'></div>");
+		$out->addHTML("<div id='main-person' class='props-table contrib'></div>");
 	}
 
 	function addComponentDiv($out) {

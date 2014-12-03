@@ -36,7 +36,9 @@ WTAnswers.prototype.getList = function( item, data ) {
 
 	var me = this;
 
-	var ival = $('<input style="width:30%" type="text" />');
+	var ival = $('<input style="width:60%" type="text" />');
+	this.util.registerSuggestions(ival, 'Answer', this.api);
+
 	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
@@ -50,7 +52,12 @@ WTAnswers.prototype.getList = function( item, data ) {
 		addans_li.hide();
 	});
 
-	igo.click(function( e ) {
+	igo.click(function(e) { localAddAnswer() });
+	ival.keyup(function(e) {
+		if(e.keyCode == 13) { localAddAnswer(); }
+	});
+
+	function localAddAnswer() {
 		var val = ival.data('val') ? ival.data('val') : ival.val();
 		addans_li.hide();
 		if(!val) return; 
@@ -67,7 +74,7 @@ WTAnswers.prototype.getList = function( item, data ) {
 				list.append(ans_li);
 			}
 		});
-	});
+	}
 
 	if(data) {
 		$.each(data.Answers, function(ind, ans) {

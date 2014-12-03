@@ -87,58 +87,38 @@ img.wflowimage {
 	clear:right;
 }
 
-table.contribs {
-	border: 1px solid #ddd;
-	border-collapse: collapse;
+/*
+	Contributions Table
+*/
+#main-person {
+	max-height: 220px;
+	overflow: auto;
 }
-table.contribs th {
-	border-bottom: 1px solid #ddd;
-	background-color: #eee;	
-	font-weight: bold;
+.props-table .table.contrib {
+	padding:0px;
 }
-table.contribs td {
+.props-table .table.contrib .row .cell {
 	font-size: 0.9em;
 	padding: 4px;
 	border-bottom: 1px solid #ddd;
 }
-
-#main-answers {
-	background-color:#f6fff6;
-}
-
-#main-person div.scroller {
-	max-height: 200px;
-	overflow: auto;
-}
-
-#main-workflow {
-	background-color:#f0fff0;
-}
-
-#main-tasks,
-#main-tree {
-	background-color:#fff6f6;
-}
-
-#main-comp {
-	background-color:khaki;
-}
-
-#main-facts {
-	background-color:#f6f6ff;
-}
-
-#main-credits {
-	background-color:#f6f6f6;
-}
-
-#main-tree div {
-	border-bottom:1px solid #eee;
-}
-
-#main-facts tr.fact td {
+.props-table .table.contrib .row.head .cell {
+	border-bottom: 1px solid #ddd;
+	background-color: #eee;	
+	padding:2px;
 	padding-left:4px;
-	padding-right:4px;
+	font-weight: bold;
+}
+.props-table .table.contrib .row .cell.time {
+	white-space: nowrap;
+	width:20%;
+}
+.props-table .table.contrib .row .cell.page {
+	width:35%;
+	text-overflow: ellipsis;
+}
+.props-table .table.contrib .row .cell.comment {
+	width:45%;
 }
 
 .sidebar-facts-source {
@@ -444,18 +424,28 @@ a.todo:hover {
 	background-color:#e2e2ef;
 }
 
-#main-tasks,
-#main-tree {
+#main-credits {
 	border-color:#efefe2;
 	background-color: #fffff6;
+	padding: 0px;
+}
+#main-credits .heading {
+	color:#776;
+	background-color:#efefe2;
+}
+
+#main-tasks,
+#main-tree {
+	border-color:#efe6ef;
+	background-color: #fffaff;
 	padding: 0px;
 }
 #main-tasks .heading,
 #main-tasks .heading a,
 #main-tree .heading,
 #main-tree .heading a {
-	color:#776;
-	background-color:#efefe2;
+	color:#767;
+	background-color:#efe6ef;
 }
 
 #main-answers {
@@ -514,6 +504,9 @@ a.todo:hover {
 }
 .props-table .row.edit{
 	background-color: #bee0f8;
+}
+.props-table .row.edit input {
+	width: 99%;
 }
 .props-table .row .cell{
 	display: table-cell;
@@ -576,7 +569,7 @@ a.todo:hover {
 }
 
 .ui-autocomplete.ui-widget {
-  font-size: 10px;
+  font-size: 11px;
 }
 .ui-state-highlight {
   font-weight: bold;

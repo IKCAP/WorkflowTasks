@@ -19,20 +19,8 @@ $(function() {
         }
     });
 
-	//if (typeof smw_tooltipInit !== 'undefined') smw_tooltipInit();
-	//$('#ca-edit').hide();
-	//$('a.actionlink').click(function() { return false; });
-	
 	var wtapi = new WTAPI(wgPageName, wgScriptPath+'/api.php');
 	var wtutil = new WTUtil(wgPageName, wtapi);
-
-	// Create sidebar
-	var treediv = $('#main-tree-sidebar');
-	if(treediv) {
-		treediv.detach().appendTo('#p-navigation');
-		var wtsidebar = new WTSidebar(wgPageName, allwttree, wtutil, wtapi);
-		wtsidebar.display(treediv);
-	}
 
 	if(wtcategories["Task"]) {
 		var wtanswers = new WTAnswers(wgPageName, allwtdetails, wtutil, wtapi);
@@ -93,30 +81,43 @@ $(function() {
 		var persondiv = $("#main-person");
 		wtperson.display(persondiv);
 	}
-	else if(!Object.keys(wtcategories).length) {
+
+	var stdpropsdiv = $("#main-std-props");
+	var factsdiv = $("#main-facts");
+	var creditsdiv = $("#main-credits");
+	if(!wtpagenotfound) {
+		if(Object.keys(stdwtprops).length) {
+			var wtstdprops = new WTStdProperties(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
+			wtstdprops.display(stdpropsdiv);
+		}
+		else {
+			stdpropsdiv.css('display', 'none');
+		}
+
+		var wtfacts = new WTFacts(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
+		wtfacts.display(factsdiv);
+
+		var wtcredits = new WTCredits(wgPageName, allwtdetails, wtutil, wtapi);
+		wtcredits.display(creditsdiv);
+	}
+	else {
+		stdpropsdiv.css('display', 'none');
+		factsdiv.css('display', 'none');
+		creditsdiv.css('display', 'none');
+	}
+
+	// Display category chooser
+	//if(!Object.keys(wtcategories).length) {
+	var catchooserdiv = $("#category-chooser");
+	if(wtpagenotfound) {
+		catchooserdiv.html(
+			"<div style='padding:5px;color:red;font-weight:bold'>Uh oh, this page doesn't exist yet.</div>");
+	}
+	if(wtuid) {
 		var wtcatchooser = new WTCategoryChooser(wgPageName, wtutil, wtapi);
-		var catchooserdiv = $("#category-chooser");
 		wtcatchooser.display(catchooserdiv);
 	}
-	else {
-		$("#category-chooser").css('display', 'none');
+	else if(!wtpagenotfound) {
+		wtcatchooser.css('display', 'none');
 	}
-
-	if(Object.keys(stdwtprops).length) {
-		var wtstdprops = new WTStdProperties(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
-		var stdpropsdiv = $("#main-std-props");
-		wtstdprops.display(stdpropsdiv);
-	}
-	else {
-		$("#main-std-props").css('display', 'none');
-	}
-
-	var wtfacts = new WTFacts(wgPageName, allwtfacts, stdwtprops, wtutil, wtapi);
-	var factsdiv = $("#main-facts");
-	wtfacts.display(factsdiv);
-
-	var wtcredits = new WTCredits(wgPageName, allwtdetails, wtutil, wtapi);
-	var creditsdiv = $("#main-credits");
-	wtcredits.display(creditsdiv);
-
 });

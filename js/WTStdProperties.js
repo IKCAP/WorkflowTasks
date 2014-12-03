@@ -129,11 +129,11 @@ WTStdProperties.prototype.generateEdit = function(pname, $content) {
 	var me = this;
 	var p = me.stdprops[pname];
 
-	$in = $('<input type="text" style="width:100%;"/>');
+	$in = $('<input type="text"/>');
 	switch(p.type) {
 		case('_wpg'):
 			var placeholder = p.category ? p.category : '';
-			$in = $('<input type="text" placeholder="'+placeholder+'" style="width:100%"/>');
+			$in = $('<input type="text" placeholder="'+placeholder+'"/>');
 			if(p.category) {
 				$in.autocomplete({
 					delay:300,
@@ -148,13 +148,13 @@ WTStdProperties.prototype.generateEdit = function(pname, $content) {
 			}
 			break;
 		case('_num'):
-			$in = $('<input type="text" placeholder="Number" style="width:100%;"/>');
+			$in = $('<input type="text" placeholder="Number"/>');
 			break;
 		case('_date'):
-			$in = $('<input type="text" placeholder="Date" style="width:100%;"/>');
+			$in = $('<input type="text" placeholder="Date"/>');
 			break;
 		case('_uri'):
-			$in = $('<input type="text" placeholder="URL" style="width:100%;"/>');
+			$in = $('<input type="text" placeholder="URL"/>');
 			break;
 	}
 	var valobj = this.propValue(pname);

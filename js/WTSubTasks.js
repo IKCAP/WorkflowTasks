@@ -3,6 +3,7 @@ var WTSubTasks = function(title, tree, util, api ) {
 	this.tree = tree;
 	this.util = util;
 	this.api = api;
+ 	this.cat = wtcategories['Procedure'] ? 'Procedure' : 'Task';
 };
 
 
@@ -50,7 +51,9 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 	var me = this;
 
 	if(!is_sub) {
-		var ival = $('<input style="width:30%" type="text" />');
+		var ival = $('<input style="width:60%" type="text" />');
+		this.util.registerSuggestions(ival, this.cat, this.api);
+
 		var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 		var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 		var addsub_li = $('<li></li>');
@@ -63,7 +66,12 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 			addsub_li.hide();
 		});
 
-		igo.click(function( e ) {
+		igo.click(function(e) { localAdd() });
+		ival.keyup(function(e) {
+			if(e.keyCode == 13) { localAdd(); }
+		});
+
+		function localAdd() {
 			var val = ival.data('val') ? ival.data('val') : ival.val();
 			addsub_li.hide();
 			if(!val) return; 
@@ -81,7 +89,7 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 					list.append(sub_li.append(sublist));
 				}
 			});
-		});
+		}
 	}
 
 	if(data) {
@@ -131,7 +139,7 @@ WTSubTasks.prototype.display = function( item ) {
 	}
 
 	this.appendParents(item);
- 	var headtitle = "Sub" + (wtcategories['Procedure'] ? 'Procedures' : 'Tasks');
+ 	var headtitle = "Sub" + this.cat + "s";
 	var header = $('<div class="heading"></div>').append($('<b>'+headtitle+'</b>')).append(' ').append(addsub_link);
 	item.append(header);
 	var wrapper = $('<div style="padding:5px"></div>');

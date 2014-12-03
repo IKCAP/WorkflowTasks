@@ -20,18 +20,16 @@ WTPerson.prototype.display = function( item ) {
 		return;
 	}
 
-	var topdiv = $('<div class="scroller"></div>');
-	var table = $('<table class="contribs"></table>');
-	var tr = $('<tr></tr>');
-	tr.append('<th style="text-align:left">Time</th>');
-	tr.append('<th style="text-align:left">Page</th>');
-	tr.append('<th style="text-align:left">Comment</th>');
-	table.append(tr);
+	var table = $('<div class="table contrib"></div>');
+	var th = $('<div class="row head"></div>');
+	th.append('<div class="cell time">Time</div>');
+	th.append('<div class="cell page">Page</div>');
+	th.append('<div class="cell comment">Comment</div>');
+	table.append(th);
 	
 	for(var i=0; i<contribs.length; i++) {
 		var contrib = contribs[i];
 
-		var tr = $('<tr></tr>');
 		var timestr = contrib[2];
 		var year = timestr.substring(0,4);
 		var month = timestr.substring(4,6);
@@ -39,15 +37,16 @@ WTPerson.prototype.display = function( item ) {
 		var hour = timestr.substring(8,10);
 		var minute = timestr.substring(10,12);
 		var time = year+"-"+month+"-"+day+" "+hour+":"+minute;
-		tr.append('<td style="white-space:nowrap">'+time+'</td>');
-		tr.append('<td><a href="./'+contrib[0]+'">'+contrib[0]+'</a></td>');
+
+		var tr = $('<div class="row"></div>');
+		tr.append('<div class="cell time">'+time+'</div>');
+		tr.append('<div class="cell page"><a href="./'+contrib[0]+'">'+contrib[0]+'</a></div>');
 		var comment = contrib[1];
 		if(comment.length > 100) comment = comment.substring(0, 100) + '...';
 		if(comment == '') comment = '-- None --';
-		tr.append('<td>'+comment+'</td>');
+		tr.append('<div class="cell comment">'+comment+'</div>');
 		table.append(tr);
 	}
-	topdiv.append(table);
-	item.append(topdiv);
+	item.append(table);
 };
 

@@ -348,11 +348,19 @@ class WTFactsAPI extends ApiBase {
 			$ret = WTFactsAPI::updateWiki($title, $summary, $data);
 
 			if($property == "SubTask") {
-				$task = new Task(Title::newFromText($value));
+				$subcat = "";
+				foreach($data->getPropertyValues(SMWDIProperty::newFromUserLabel("_INST")) as $catobj) 
+					$subcat = $catobj->getDbKey();
+				$valtitle = Title::newFromText($value);
+				if(!$valtitle->exists() && $subcat)
+					WTFactsAPI::createPageWithCategory($value, $subcat);
+				$task = new Task($valtitle);
 				$ret[] = $task->getPageDetails();
 			}
 			else if($property == "Answer") {
 				$antitle = Title::newFromText($value);
+				if(!$antitle->exists())
+					WTFactsAPI::createPageWithCategory($value, "Answer");
 				$item = array("text"=>$antitle->getText(), 
 							"exists"=>$antitle->exists(), 
 							"key"=>$antitle->getDbKey());
@@ -367,7 +375,9 @@ class WTFactsAPI extends ApiBase {
 				$ret[] = $page->getPageDetails();
 			}
 			else if($property == "Columns") {
-				WTFactsAPI::createWikiPage($value, "[[Category:DataType]]", "Autocreating Column Datatype Page");
+				$valtitle = Title::newFromText($value);
+				if(!$valtitle->exists())
+					WTFactsAPI::createPageWithCategory($value, "DataType");
 			}
 		}
 		return $ret;
@@ -1008,7 +1018,7 @@ class WTFactsAPI extends ApiBase {
 	}
 
 	public static function createPageWithCategory($title, $category) {
-		$text = "[[Category:$category]]\n";
+		$text = $category ? "[[Category:$category]]\n" : "";
 		$summary = "Creating new page with Category: $category";
 		return WTFactsAPI::createWikiPage($title, $text, $summary);
 	}

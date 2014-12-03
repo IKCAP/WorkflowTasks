@@ -52,7 +52,7 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 			$t.addClass('edit');
 			var pname = fact.property.name;
 			$content = $t.find('.content');
-			$in = $('<input type="text" style="width:100%;"/>');
+			$in = $('<input type="text"/>');
 			var valobj = fact.value;
 			if(valobj)
 				$in.val(valobj.val);

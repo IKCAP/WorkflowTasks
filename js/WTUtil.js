@@ -99,3 +99,14 @@ WTUtil.prototype.getHelpButton = function( msg ) {
 	return ah;
 };
 
+WTUtil.prototype.registerSuggestions = function(item, category, api) {
+	item.autocomplete({
+		delay:300,
+		minLength:1,
+		source: function(request, response) {
+			api.getSuggestions(request.term, category, function(sug) {
+				response.call(this, sug.wtsuggest.suggestions);
+			});
+		}
+	});
+};

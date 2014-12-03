@@ -47,7 +47,7 @@ WTUserDescribedData.prototype.getList = function( item, data ) {
 	var list = $('<ul></ul>');
 	var me = this;
 
-	var ival = $('<input style="width:30%" type="text" />');
+	var ival = $('<input style="width:60%" type="text" />');
 	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
@@ -61,7 +61,12 @@ WTUserDescribedData.prototype.getList = function( item, data ) {
 		add_data_li.hide();
 	});
 
-	igo.click(function( e ) {
+	igo.click(function(e) { localAdd() });
+	ival.keyup(function(e) {
+		if(e.keyCode == 13) { localAdd(); }
+	});
+
+	function localAdd() {
 		var val = ival.data('val') ? ival.data('val') : ival.val();
 		add_data_li.hide();
 		if(!val) return; 
@@ -79,7 +84,7 @@ WTUserDescribedData.prototype.getList = function( item, data ) {
 				list.append(data_li);
 			}
 		});
-	});
+	}
 
 	if(data && data.Workflow) {
 		list.append(me.getListItem(item, data.Workflow));

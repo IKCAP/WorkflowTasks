@@ -149,7 +149,7 @@ WTExecutedWorkflow.prototype.getList = function( item, data ) {
 
 	var me = this;
 
-	var ival = $('<input style="width:30%" type="text" />');
+	var ival = $('<input style="width:60%" type="text" />');
 	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
@@ -163,7 +163,12 @@ WTExecutedWorkflow.prototype.getList = function( item, data ) {
 		addwflow_li.hide();
 	});
 
-	igo.click(function( e ) {
+	igo.click(function(e) { localAdd() });
+	ival.keyup(function(e) {
+		if(e.keyCode == 13) { localAdd(); }
+	});
+
+	function localAdd() {
 		var val = ival.data('val') ? ival.data('val') : ival.val();
 		addwflow_li.hide();
 		if(!val) return; 
@@ -182,7 +187,7 @@ WTExecutedWorkflow.prototype.getList = function( item, data ) {
 				me.convertGroupLists();
 			}
 		});
-	});
+	}
 
 	if(data && data.Workflow) {
 		list.append(me.getListItem(item, data.Workflow));

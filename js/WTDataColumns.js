@@ -74,6 +74,7 @@ WTDataColumns.prototype.sortDataColumns = function(data) {
 		sobjects[this.upperCaseFirst(sobj)] = parseInt(data.subobjects[sobj].Index.values[0].val);
 	var vals = [];
 	var colhash = {};
+	if(!data.Columns) data.Columns = {values:[]};
 	for (var i=0; i<data.Columns.values.length; i++) {
 		var ind = sobjects[data.Columns.values[i].val];
 		vals[ind] = data.Columns.values[i];	
@@ -104,22 +105,11 @@ WTDataColumns.prototype.createNewList = function(list, addcol, delcol, moveupcol
 WTDataColumns.prototype.getList = function( item, data ) {
 	var me = this;
 
-	var ival = $('<input style="width:30%" type="text" />');
+	var ival = $('<input style="width:60%" type="text" />');
+	this.util.registerSuggestions(ival, 'columntype', this.api);
+
 	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
 	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
-	ival.autocomplete({
-		delay:300,
-		minLength:1,
-		source: function(request, response) {
-			var item = this;
-			me.api.getSuggestions(request.term, 'columntype', function(sug) {
-				response.call(this, sug.wtsuggest.suggestions);
-			});
-		},
-		select: function(e, ui) {
-			ival.data('val', ui.item.value);
-		}
-	});
 
 	var addcol_li = $('<li></li>').append($('<div style="width:24px"></div>'));
 	addcol_li.append(ival).append(igo).append(icancel).hide();
@@ -135,7 +125,12 @@ WTDataColumns.prototype.getList = function( item, data ) {
 		addcol_li.hide();
 	});
 
-	igo.click(function( e ) {
+	igo.click(function( e ) { localAddColumn(); });
+	ival.keyup(function( e ) {
+		if(e.keyCode == 13){ localAddColumn(); }
+	});
+
+	function localAddColumn() {
 		var val = ival.data('val') ? ival.data('val') : ival.val();
 		addcol_li.hide();
 		if(!val) return; 
@@ -153,7 +148,7 @@ WTDataColumns.prototype.getList = function( item, data ) {
 				me.fillList(list);
 			}
 		});
-	});
+	}
 
 	item.data('list', list);
 	return list;
