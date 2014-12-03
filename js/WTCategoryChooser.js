@@ -24,6 +24,7 @@ WTCategoryChooser.prototype.display = function( item ) {
 	$select.keyup(function( e ) {
 		if(e.keyCode == 13){
 			var val = $select.val();
+			if(curcat == val) return;
 			item.mask(lpMsg('Setting Category..'));
 			me.api.createPageWithCategory( me.title, val, function(response) {
 				if(!response || !response.wtfacts) return; 
