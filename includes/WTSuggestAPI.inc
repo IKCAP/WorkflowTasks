@@ -57,7 +57,7 @@ class WTSuggestAPI extends ApiBase {
 		$query->setQueryString($querystr);
 		$result = $store->getQueryResult($query);
 		foreach($result->getResults() as $page) {
-			$plabel = $page->getDBKey();
+			$plabel = str_replace('_', ' ', $page->getDBKey());
 			if(preg_match("/^$search/i", $plabel))
 				$main_suggestions[] = $plabel; //array("exists"=>true, "label"=>$plabel);
 			else if(preg_match("/$search/i", $plabel))
