@@ -8,15 +8,15 @@ var WTUserProvidedData = function(title, details, util, api ) {
 WTUserProvidedData.prototype.appendLinkItem = function( list, link, name ) {
 	if(!name) name = link;
 	var vlink = link.replace(/\s/g, '_');
-	list.append($j('<li></li>').append($j('<a href="'+vlink+'"></a>').append(name)));
+	list.append($('<li></li>').append($('<a href="'+vlink+'"></a>').append(name)));
 };
 
 WTUserProvidedData.prototype.getListItem = function( list, data ) {
-	var data_li = $j('<li></li>');
+	var data_li = $('<li></li>');
 
 	var me = this;
 	if(wtuid) {
-		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		var delhref = $('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		delhref.click( function(e) {
 			list.mask(lpMsg('Removing Data Name..'));
 			me.api.removeDataWikiLink( me.title, data.location, function(resp) {
@@ -32,7 +32,7 @@ WTUserProvidedData.prototype.getListItem = function( list, data ) {
 	}
 	
 	var wflink = data.location.replace(/\s/g,'_');
-	data_li.append($j('<a href="./File:'+wflink+'"></a>').append("<b>"+wflink+"</b>"));
+	data_li.append($('<a href="./File:'+wflink+'"></a>').append("<b>"+wflink+"</b>"));
 
 	return data_li;
 };
@@ -44,14 +44,14 @@ WTUserProvidedData.prototype.populateList = function( list, data ) {
 };
 
 WTUserProvidedData.prototype.getList = function( item, data ) {
-	var list = $j('<ul></ul>');
+	var list = $('<ul></ul>');
 	var me = this;
 
-	var ival = $j('<input style="width:30%" type="text" />');
-	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
-	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+	var ival = $('<input style="width:30%" type="text" />');
+	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
+	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
-	var add_data_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
+	var add_data_li = $('<li></li>').append($('<div style="width:24px"></div>'));
 	add_data_li.append(ival).append(igo).append(icancel).hide();
 	list.append(add_data_li);
 
@@ -102,7 +102,7 @@ WTUserProvidedData.prototype.display = function( item ) {
 	var list = me.getList( item, me.details );
 
 	if(wtuid) {
-		me.add_data_link = $j('<a class="x-small lodbutton">' + lpMsg('Provide Data Name') + '</a>');
+		me.add_data_link = $('<a class="x-small lodbutton">' + lpMsg('Provide Data Name') + '</a>');
 		me.add_data_link.click(function( e ) {
 			list.find('li:first').css('display', '');
 		});
@@ -110,10 +110,10 @@ WTUserProvidedData.prototype.display = function( item ) {
 			me.add_data_link.css('display', 'none');
 	}
 
-	var header = $j('<div class="heading"></div>').append($j('<b>User Provided Data</b>'));
+	var header = $('<div class="heading"></div>').append($('<b>User Provided Data</b>'));
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
-	var toolbar = $j('<div></div>').append(me.add_data_link);
+	var wrapper = $('<div style="padding:5px"></div>');
+	var toolbar = $('<div></div>').append(me.add_data_link);
 	wrapper.append(toolbar);
 	wrapper.append(list);
 	item.append(wrapper);

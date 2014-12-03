@@ -8,21 +8,21 @@ var WTPerson = function(title, details, util, api ) {
 WTPerson.prototype.display = function( item ) {
 	var me = this;
 	item.data('data', me.details);
-	var header = $j('<div class="heading"></div>').append($j('<b>Recent Contributions</b>'));
+	var header = $('<div class="heading"></div>').append($('<b>Recent Contributions</b>'));
 	item.append(header);
 
 	var contribs = me.details.WTPerson.contributions;
 	if(!contribs.length) {
-		var wrapper = $j('<div style="padding:5px"></div>');
+		var wrapper = $('<div style="padding:5px"></div>');
 		wrapper.append('No contributions by this person to the wiki.');
 		wrapper.append('<br/><i>Note: If this person exists on the wiki, then add the "Has User ID" property to this page with its value set to the Wiki User ID.</i>'); 
 		item.append(wrapper);
 		return;
 	}
 
-	var topdiv = $j('<div class="scroller"></div>');
-	var table = $j('<table class="contribs"></table>');
-	var tr = $j('<tr></tr>');
+	var topdiv = $('<div class="scroller"></div>');
+	var table = $('<table class="contribs"></table>');
+	var tr = $('<tr></tr>');
 	tr.append('<th style="text-align:left">Time</th>');
 	tr.append('<th style="text-align:left">Page</th>');
 	tr.append('<th style="text-align:left">Comment</th>');
@@ -31,7 +31,7 @@ WTPerson.prototype.display = function( item ) {
 	for(var i=0; i<contribs.length; i++) {
 		var contrib = contribs[i];
 
-		var tr = $j('<tr></tr>');
+		var tr = $('<tr></tr>');
 		var timestr = contrib[2];
 		var year = timestr.substring(0,4);
 		var month = timestr.substring(4,6);

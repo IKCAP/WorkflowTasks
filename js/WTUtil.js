@@ -8,7 +8,7 @@ var WTUtil = function(title, api) {
 
 WTUtil.prototype.initEventHandlers = function() {
 	var me = this;
-	$j(document).ready(function() {
+	$(document).ready(function() {
 	});
 };
 
@@ -31,12 +31,12 @@ WTUtil.prototype.checkevent = function( chkbox, item, tr, link, linkstr, linkstr
 	var checked_data = item.data('checked_data');
 	var trdata = tr.data('data');
 
-	if($j(chkbox).attr("checked")) {
+	if($(chkbox).attr("checked")) {
 		tr.addClass('lodselected'); num++;
 		checked_data.push(trdata);
 	} else {
 		tr.removeClass('lodselected'); num--;
-		checked_data = $j.grep(checked_data, function(v) { return v != trdata; });
+		checked_data = $.grep(checked_data, function(v) { return v != trdata; });
 	}
 	if(num) {
 		if(num > 1) link.html(linkstrs);
@@ -51,26 +51,26 @@ WTUtil.prototype.checkevent = function( chkbox, item, tr, link, linkstr, linkstr
 };
 
 WTUtil.prototype.hideFacts = function( striples ) {
-	$j.each(striples, function(i, t) {
-		$j.each(t.sources, function(m, s) {
-			var ident = $j('.lodentity[title="' + s + '"]');
+	$.each(striples, function(i, t) {
+		$.each(t.sources, function(m, s) {
+			var ident = $('.lodentity[title="' + s + '"]');
 			var table = ident.data('table');
-			$j.each(table.children().children('tr'), function(i, tr) {
-				if($j(tr).data('pid') == t.p && $j(tr).data('oid')==t.o)
-					$j(tr).hide();
+			$.each(table.children().children('tr'), function(i, tr) {
+				if($(tr).data('pid') == t.p && $(tr).data('oid')==t.o)
+					$(tr).hide();
 			});
 		});
 	});
 };
 
 WTUtil.prototype.showFacts = function( striples ) {
-	$j.each(striples, function(i, t) {
-		$j.each(t.sources, function(m, s) {
-			var ident = $j('.lodentity[title="' + s + '"]');
+	$.each(striples, function(i, t) {
+		$.each(t.sources, function(m, s) {
+			var ident = $('.lodentity[title="' + s + '"]');
 			var table = ident.data('table');
-			$j.each(table.children().children('tr'), function(i, tr) {
-				if($j(tr).data('pid') == t.p && $j(tr).data('oid')==t.o)
-					$j(tr).show();
+			$.each(table.children().children('tr'), function(i, tr) {
+				if($(tr).data('pid') == t.p && $(tr).data('oid')==t.o)
+					$(tr).show();
 			});
 		});
 	});
@@ -79,7 +79,7 @@ WTUtil.prototype.showFacts = function( striples ) {
 WTUtil.prototype.removeDuplicateTriples = function( triples ) {
 	var seen = {};
 	var newarr = [];
-	$j.each(triples, function() {
+	$.each(triples, function() {
     	if (seen[this.property]!=this.object) 
 			newarr.push(this);
       seen[this.property] = this.object;
@@ -88,13 +88,13 @@ WTUtil.prototype.removeDuplicateTriples = function( triples ) {
 };
 
 WTUtil.prototype.getHelpButton = function( msg ) {
-	var win = $j('<div class="jqmWindow"></div>');
+	var win = $('<div class="jqmWindow"></div>');
 	win.append('<h2 style="float:left">' + lpMsg('Help Window') +'</h2><a href="#" style="float:right" class="jqmClose">' + lpMsg('Close') + '</a><hr style="clear:both"/>');
 	win.append(lpMsg('help-' + msg));
-	$j(document.body).append(win);
+	$(document.body).append(win);
 	win.jqm();
 
-	var ah = $j('<a class="helpbutton lodlink"></a>');
+	var ah = $('<a class="helpbutton lodlink"></a>');
 	ah.click(function(){ win.jqmShow();});
 	return ah;
 };

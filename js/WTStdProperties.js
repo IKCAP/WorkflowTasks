@@ -98,7 +98,7 @@ WTStdProperties.prototype.appendLabelCell = function($row, pname, property) {
     var lprop = property.label;
     var propcls = property.exists ? 'lodlink' : 'lodlink new';
     var propuri = wgScriptPath + '/index.php/Property:' + property.label;
-    $propentity = $j('<a href="' + propuri + '" class="'+propcls+'">' + lprop + '</a>');
+    $propentity = $('<a href="' + propuri + '" class="'+propcls+'">' + lprop + '</a>');
 	$propentity.click(function(e) { e.stopPropagation(); });
 	$cell.append($propentity);
 	//$cell.html(this.typeToLabel(pname));

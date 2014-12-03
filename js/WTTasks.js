@@ -8,19 +8,19 @@ var WTTasks = function(title, details, util, api ) {
 WTTasks.prototype.display = function( item ) {
 	var me = this;
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Tasks Answered</b>'));
+	var header = $('<div class="heading"></div>').append($('<b>Tasks Answered</b>'));
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 	item.append(wrapper);
 
 	wrapper.append("<div>This page answers the following Tasks:</div>");
 
 	var tasks = me.details.Tasks;
-	var list = $j('<ul></ul>');
-	$j.each(tasks, function(name, task) {
+	var list = $('<ul></ul>');
+	$.each(tasks, function(name, task) {
 		var q_cls = task.exists ? '' : 'new';
-		var qlink = $j('<a class="'+q_cls+'" href="'+task.key+'"></a>').append(task.text);
-		list.append($j("<li></li>").append(qlink));
+		var qlink = $('<a class="'+q_cls+'" href="'+task.key+'"></a>').append(task.text);
+		list.append($("<li></li>").append(qlink));
 	});
 
 	wrapper.append(list);

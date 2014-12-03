@@ -8,7 +8,7 @@ var WTComponent = function(title, details, util, api ) {
 WTComponent.prototype.appendLinkItem = function( list, link, name ) {
 	if(!name) name = link;
 	var vlink = link.replace(/\s/g, '_');
-	list.append($j('<li></li>').append($j('<a href="'+vlink+'"></a>').append(name)));
+	list.append($('<li></li>').append($('<a href="'+vlink+'"></a>').append(name)));
 };
 
 WTComponent.prototype.populateList = function( list, data ) {
@@ -16,38 +16,38 @@ WTComponent.prototype.populateList = function( list, data ) {
 	//me.appendLinkItem( list, data.location, "<b>DOWNLOAD</b>" );
 	console.log(data);
 
-	var idvs = $j('<ul></ul>');
-	$j.each(data.inputdatavars, function(i, v) {
-		idvs.append($j('<li>'+v+'</li>'));
+	var idvs = $('<ul></ul>');
+	$.each(data.inputdatavars, function(i, v) {
+		idvs.append($('<li>'+v+'</li>'));
 	});
-	list.append($j('<li><b>Input</b></li>')).append(idvs);
+	list.append($('<li><b>Input</b></li>')).append(idvs);
 
 	if(data.inputparamvars.length) {
-		var ipvs = $j('<ul></ul>');
-		$j.each(data.inputparamvars, function(i, v) {
-			ipvs.append($j('<li>'+v+'</li>'));
+		var ipvs = $('<ul></ul>');
+		$.each(data.inputparamvars, function(i, v) {
+			ipvs.append($('<li>'+v+'</li>'));
 		});
-		list.append($j('<li><b>Param</b></li>')).append(ipvs);
+		list.append($('<li><b>Param</b></li>')).append(ipvs);
 	}
 
-	var odvs = $j('<ul></ul>');
-	$j.each(data.outputdatavars, function(i, v) {
-		odvs.append($j('<li>'+v+'</li>'));
+	var odvs = $('<ul></ul>');
+	$.each(data.outputdatavars, function(i, v) {
+		odvs.append($('<li>'+v+'</li>'));
 	});
-	list.append($j('<li><b>Output</b></li>')).append(odvs);
+	list.append($('<li><b>Output</b></li>')).append(odvs);
 
 	if(data.usedintemplates.length) {
-		var plinks = $j('<ul></ul>');
-		$j.each(data.usedintemplates, function(i, link) {
+		var plinks = $('<ul></ul>');
+		$.each(data.usedintemplates, function(i, link) {
 			var name = link.replace(/.+\//, '');
 			me.appendLinkItem( plinks, link, name );
 		});
-		list.append($j('<li><b>Used in the following Templates:</b></li>')).append(plinks);
+		list.append($('<li><b>Used in the following Templates:</b></li>')).append(plinks);
 	}
 };
 
 WTComponent.prototype.getList = function( item, data ) {
-	var list = $j('<ul></ul>');
+	var list = $('<ul></ul>');
 	var me = this;
 
 	if(data && data.WTComponent) {
@@ -65,9 +65,9 @@ WTComponent.prototype.display = function( item ) {
 
 	var list = me.getList( item, me.details );
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Component</b>'));
+	var header = $('<div class="heading"></div>').append($('<b>Component</b>'));
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 	wrapper.append(list);
 	item.append(wrapper);
 };

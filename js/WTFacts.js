@@ -82,7 +82,7 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 	// Delete link and event handler
 	var delhref = '';
 	if(wtuid) {
-		delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		delhref = $('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		delhref.click( function(e) {
 			item.mask(lpMsg('Removing Fact..'));
 			me.api.removeFact( me.title, fact.property.name, fact.value.val, function(resp) {
@@ -97,20 +97,20 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 		});
 	}
 	else {
-		delhref = $j('<i class="fa fa-tag fa-lg" style="color:#667"></i>');
+		delhref = $('<i class="fa fa-tag fa-lg" style="color:#667"></i>');
 	}
 
 	var lprop = fact.property.name;
 	var propcls = fact.property.exists ? 'lodlink' : 'lodlink new';
 	var propuri = wgScriptPath + '/index.php/Property:' + fact.property.name;
-	var propentity = $j('<a href="' + propuri + '" class="'+propcls+'">' + lprop + '</a>');
+	var propentity = $('<a href="' + propuri + '" class="'+propcls+'">' + lprop + '</a>');
 
 	var valentity = me.generateContent(fact);
 	var authtext = "(By "+fact.value.author+")";
-	tr.append($j('<div class="cell icon"></div>').append(delhref));
-	tr.append($j('<div class="cell label"></div>').append(propentity));
-	tr.append($j('<div class="cell content"></div>').append(valentity));
-	tr.append($j('<div class="cell author"></div>').html(authtext));
+	tr.append($('<div class="cell icon"></div>').append(delhref));
+	tr.append($('<div class="cell label"></div>').append(propentity));
+	tr.append($('<div class="cell content"></div>').append(valentity));
+	tr.append($('<div class="cell author"></div>').html(authtext));
 
 	return tr;
 };
@@ -118,18 +118,18 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 WTFacts.prototype.blacklist = ['SubTask', 'Answer', 'Answered', 'Workflow', 'DataLocation', 'DataWikiLocation', 'DataExtractedFrom', 'Columns'];
 
 WTFacts.prototype.getfactstable = function( item, data ) {
-	var table = $j('<div class="table"></div>');
+	var table = $('<div class="table"></div>');
 
-	var iprop = $j('<input style="width:97%" type="text"/>');
-	var ival = $j('<input style="width:99%" type="text" />');
-	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
-	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+	var iprop = $('<input style="width:97%" type="text"/>');
+	var ival = $('<input style="width:99%" type="text" />');
+	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
+	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
-	var addfact_tr = $j('<div class="row"></div>');
-	addfact_tr.append($j('<div class="cell icon"></div>'));
-	addfact_tr.append($j('<div class="cell label"></div>').append(iprop));
-	addfact_tr.append($j('<div class="cell content"></div>').append(ival));
-	addfact_tr.append($j('<div class="cell"></div>').append(igo).append(icancel)).hide();
+	var addfact_tr = $('<div class="row"></div>');
+	addfact_tr.append($('<div class="cell icon"></div>'));
+	addfact_tr.append($('<div class="cell label"></div>').append(iprop));
+	addfact_tr.append($('<div class="cell content"></div>').append(ival));
+	addfact_tr.append($('<div class="cell"></div>').append(igo).append(icancel)).hide();
 	table.append(addfact_tr);
 
 	var me = this;
@@ -149,11 +149,11 @@ WTFacts.prototype.getfactstable = function( item, data ) {
 	});
 
 	if(data) {
-		$j.each(data, function(prop, propdata) {
-			if(($j.inArray(prop, me.blacklist) == -1)  &&
+		$.each(data, function(prop, propdata) {
+			if(($.inArray(prop, me.blacklist) == -1)  &&
 				(!me.stdprops[prop])) {
 				if(!propdata.values) return;
-				$j.each(propdata.values, function(key, val) {
+				$.each(propdata.values, function(key, val) {
 					var fact = {property:{name:prop, exists:propdata.exists}, value:val};
 					var tr = me.getfactrow(fact, item, data);
 					table.append(tr);
@@ -207,14 +207,14 @@ WTFacts.prototype.display = function( item ) {
 
 	var addfact_link = '';
 	if(wtuid) {
-		addfact_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addfact_link = $('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
 		addfact_link.click(function( e ) {
 			var table = item.data('table');
 			table.find('div.row:first').css('display', '');
 		});
 	}
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Properties</b>').append(' ').append(addfact_link));
+	var header = $('<div class="heading"></div>').append($('<b>Properties</b>').append(' ').append(addfact_link));
 	item.append(header);
 	//item.append(me.util.getHelpButton('add-fact'));
 	item.append(me.$table);

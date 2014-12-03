@@ -82,7 +82,7 @@ WTAPI.prototype.moveDataColumn = function( title, newlist, callbackfunction ) {
 };
 
 WTAPI.prototype.createPageWithCategory = function( title, category, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"   : "wtfacts",
 		"operation": "newpage",
 		"title"    : title,
@@ -93,7 +93,7 @@ WTAPI.prototype.createPageWithCategory = function( title, category, callbackfunc
 };
 
 WTAPI.prototype.updateSubobjects = function( title, subobjectsjson, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"          : "wtfacts",
 		"operation"       : "updatesubobjects",
 		"title"           : title,
@@ -128,7 +128,7 @@ WTAPI.prototype.setFactComplex = function( subject, predicate, object, subobjs, 
 };
 
 WTAPI.prototype.addFactRaw = function( subject, predicate, object, subobjectsjson, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"          : "wtfacts",
 		"operation"       : "add",
 		"title"           : subject,
@@ -141,7 +141,7 @@ WTAPI.prototype.addFactRaw = function( subject, predicate, object, subobjectsjso
 };
 
 WTAPI.prototype.removeFactRaw = function( subject, predicate, object, subobjectsjson, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"          : "wtfacts",
 		"operation"       : "del",
 		"title"           : subject,
@@ -154,7 +154,7 @@ WTAPI.prototype.removeFactRaw = function( subject, predicate, object, subobjects
 };
 
 WTAPI.prototype.setFactRaw = function( subject, predicate, object, oldobject, subobjectsjson, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"          : "wtfacts",
 		"operation"       : "set",
 		"title"           : subject,
@@ -168,7 +168,7 @@ WTAPI.prototype.setFactRaw = function( subject, predicate, object, oldobject, su
 };
 
 WTAPI.prototype.getFacts = function( subject, predicate, object, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"   : "wtfacts",
 		"operation": "show",
 		"title"    : subject,
@@ -177,7 +177,7 @@ WTAPI.prototype.getFacts = function( subject, predicate, object, callbackfunctio
 };
 
 WTAPI.prototype.getSuggestions = function( search, type, callbackfunction ) {
-	$j.post(this.apiuri, {
+	$.post(this.apiuri, {
 		"action"   : "wtsuggest",
 		"type"     : type,
 		"search"   : search,
@@ -187,7 +187,7 @@ WTAPI.prototype.getSuggestions = function( search, type, callbackfunction ) {
 
 WTAPI.prototype.setToken = function() {
 	var me = this;
-	$j.getJSON(this.apiuri, {
+	$.getJSON(this.apiuri, {
 		"action"   : "query",
 		"prop"     : "info",
 		"intoken"  : "edit",

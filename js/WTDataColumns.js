@@ -10,17 +10,17 @@ WTDataColumns.prototype.appendLinkItem = function( list, link, name ) {
 	var cls = link.match(/^http/i) ? 'external' : '';
 	var vlink = link.replace(/\s/g, '_');
 	var vname = name.replace(/.+\//, '');
-	list.append($j('<li></li>').append($j('<a class="'+cls+'" href="'+vlink+'"></a>').append(vname)));
+	list.append($('<li></li>').append($('<a class="'+cls+'" href="'+vlink+'"></a>').append(vname)));
 };
 
 WTDataColumns.prototype.getListItem = function( list, col ) {
-	var col_li = $j('<li class="column"></li>');
+	var col_li = $('<li class="column"></li>');
 
 	var me = this;
 	var delhref = '';
 	var movehref = '';
 	if(wtuid) {
-		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		var delhref = $('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		delhref.click( function(e) {
 			list.mask(lpMsg('Removing Column..'));
 			var newlist = me.createNewList(list, null, col.key);
@@ -32,7 +32,7 @@ WTDataColumns.prototype.getListItem = function( list, col ) {
 				}
 			});
 		});
-		var movehref = $j('<a class="lodlink"><i class="fa fa-arrow-up"></i></a>');
+		var movehref = $('<a class="lodlink"><i class="fa fa-arrow-up"></i></a>');
 		// Move [^] link's event handler
 		movehref.click( function(e) {
 			list.mask(lpMsg('Moving column up..'));
@@ -104,9 +104,9 @@ WTDataColumns.prototype.createNewList = function(list, addcol, delcol, moveupcol
 WTDataColumns.prototype.getList = function( item, data ) {
 	var me = this;
 
-	var ival = $j('<input style="width:30%" type="text" />');
-	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
-	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+	var ival = $('<input style="width:30%" type="text" />');
+	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
+	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 	ival.autocomplete({
 		delay:300,
 		minLength:1,
@@ -121,10 +121,10 @@ WTDataColumns.prototype.getList = function( item, data ) {
 		}
 	});
 
-	var addcol_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
+	var addcol_li = $('<li></li>').append($('<div style="width:24px"></div>'));
 	addcol_li.append(ival).append(igo).append(icancel).hide();
 
-	var list = $j('<ul></ul>');
+	var list = $('<ul></ul>');
 	list.data('data', data);
 	this.fillList(list);
 	list.append(addcol_li);
@@ -168,15 +168,15 @@ WTDataColumns.prototype.display = function( item ) {
 	var list = me.getList( item, me.details );
 
 	if(wtuid) {
-		me.addcol_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		me.addcol_link = $('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
 		me.addcol_link.click(function( e ) {
 			list.find('li:last').css('display', '');
 		});
 	}
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Data Columns</b>')).append(' ').append(me.addcol_link);
+	var header = $('<div class="heading"></div>').append($('<b>Data Columns</b>')).append(' ').append(me.addcol_link);
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 	wrapper.append(list);
 	item.append(wrapper);
 };

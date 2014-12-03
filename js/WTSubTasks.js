@@ -7,11 +7,11 @@ var WTSubTasks = function(title, tree, util, api ) {
 
 
 WTSubTasks.prototype.getListItem = function( list, subdata, answers, is_sub ) {
-	var sub_li = $j('<li></li>');
+	var sub_li = $('<li></li>');
 
 	var me = this;
 	if(!is_sub && wtuid) {
-		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		var delhref = $('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		// Minus [-] link's event handler
 		delhref.click( function(e) {
 			list.mask(lpMsg('Removing SubTask..'));
@@ -27,15 +27,15 @@ WTSubTasks.prototype.getListItem = function( list, subdata, answers, is_sub ) {
 	}
 
 	var sub_cls = subdata.exists ? '' : 'new';
-	sub_li.append($j('<a class="'+sub_cls+'" href="'+subdata.key+'"></a>').append(subdata.text));
+	sub_li.append($('<a class="'+sub_cls+'" href="'+subdata.key+'"></a>').append(subdata.text));
 
 	if(answers && answers.length) {
 		sub_li.append(' (Answer: ');
 		var i=0;
-		$j.each(answers, function(ind, ans) {
+		$.each(answers, function(ind, ans) {
 			if(i) sub_li.append(', ');
 			var ans_cls = ans.item.exists ? '' : 'new';
-			sub_li.append($j('<a class="'+ans_cls+'" href="'+ans.item.key+'"></a>').append(ans.item.text));
+			sub_li.append($('<a class="'+ans_cls+'" href="'+ans.item.key+'"></a>').append(ans.item.text));
 			i++;
 		});
 		sub_li.append(')');
@@ -45,15 +45,15 @@ WTSubTasks.prototype.getListItem = function( list, subdata, answers, is_sub ) {
 };
 
 WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
-	var list = $j('<ul class="wt-tree"></ul>');
+	var list = $('<ul class="wt-tree"></ul>');
 
 	var me = this;
 
 	if(!is_sub) {
-		var ival = $j('<input style="width:30%" type="text" />');
-		var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
-		var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
-		var addsub_li = $j('<li></li>');
+		var ival = $('<input style="width:30%" type="text" />');
+		var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
+		var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+		var addsub_li = $('<li></li>');
 		addsub_li.append(ival).append(igo).append(icancel).hide();
 		list.append(addsub_li);
 
@@ -85,7 +85,7 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 	}
 
 	if(data) {
-		$j.each(data.SubTasks, function(ind, sub) {
+		$.each(data.SubTasks, function(ind, sub) {
 			var sub_li = me.getListItem(item, sub.item, sub.details.Answers, is_sub);
 			var sublist = me.getTree(sub_li, sub.details, true);
 			list.append(sub_li.append(sublist));
@@ -100,15 +100,15 @@ WTSubTasks.prototype.getTree = function( item, data, is_sub ) {
 WTSubTasks.prototype.appendParents = function( item ) {
 	if( !this.tree.Parents || !this.tree.Parents.length ) return;
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Parent Tasks</b>'));
+	var header = $('<div class="heading"></div>').append($('<b>Parent Tasks</b>'));
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 
-	var list = $j('<ul style="margin-bottom:8px"></ul>');
-	$j.each(this.tree.Parents, function(ind, par) {
+	var list = $('<ul style="margin-bottom:8px"></ul>');
+	$.each(this.tree.Parents, function(ind, par) {
 		var par_cls = par.exists ? '' : 'new';
-		var link = $j('<a class="'+par_cls+'" href="'+par.key+'"></a>').append(par.text);
-		list.append($j("<li></li>").append(link));
+		var link = $('<a class="'+par_cls+'" href="'+par.key+'"></a>').append(par.text);
+		list.append($("<li></li>").append(link));
 	});
 
 	wrapper.append(list);
@@ -124,7 +124,7 @@ WTSubTasks.prototype.display = function( item ) {
 
 	var addsub_link = '';
 	if(wtuid) {
-		addsub_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addsub_link = $('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
 		addsub_link.click(function( e ) {
 			list.find('li:first').css('display', '');
 		});
@@ -132,9 +132,9 @@ WTSubTasks.prototype.display = function( item ) {
 
 	this.appendParents(item);
  	var headtitle = "Sub" + (wtcategories['Procedure'] ? 'Procedures' : 'Tasks');
-	var header = $j('<div class="heading"></div>').append($j('<b>'+headtitle+'</b>')).append(' ').append(addsub_link);
+	var header = $('<div class="heading"></div>').append($('<b>'+headtitle+'</b>')).append(' ').append(addsub_link);
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 	wrapper.append(list);
 	item.append(wrapper);
 };

@@ -7,13 +7,13 @@ var WTCategoryChooser = function(title, util, api ) {
 WTCategoryChooser.prototype.display = function( item ) {
 	var me = this;
 
-	var select = $j('<select></select>');
-	select.append($j("<option value=''> -- None -- </option>"));
-	$j.each(wtallcategories, function(i, cat) {
+	var select = $('<select></select>');
+	select.append($("<option value=''> -- None -- </option>"));
+	$.each(wtallcategories, function(i, cat) {
 		if(wtcategories[cat]) 
-			select.append($j("<option selected='selected' value='"+cat+"'>"+cat+"</option>"));
+			select.append($("<option selected='selected' value='"+cat+"'>"+cat+"</option>"));
 		else
-			select.append($j("<option value='"+cat+"'>"+cat+"</option>"));
+			select.append($("<option value='"+cat+"'>"+cat+"</option>"));
 	});
 
 	select.change(function( e ) {
@@ -31,12 +31,12 @@ WTCategoryChooser.prototype.display = function( item ) {
 	});
 
 	if(wtuid) {
-		var catdiv = $j('<div style="padding:5px">Choose a Category for this page:</div>');
+		var catdiv = $('<div style="padding:5px">Choose a Category for this page:</div>');
 		catdiv.append('<br/>').append(select);
 		item.append(catdiv);
 	}
 	else {
-		item.append($j('<div style="padding:5px">No Category</div>'));
+		item.append($('<div style="padding:5px">No Category</div>'));
 	}
 };
 

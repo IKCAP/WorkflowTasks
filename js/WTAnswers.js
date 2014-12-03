@@ -7,11 +7,11 @@ var WTAnswers = function(title, tree, util, api ) {
 
 
 WTAnswers.prototype.getListItem = function( list, ansdata ) {
-	var ans_li = $j('<li></li>');
+	var ans_li = $('<li></li>');
 
 	var me = this;
 	if(wtuid) {
-		var delhref = $j('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
+		var delhref = $('<a class="lodlink"><i class="fa fa-times-circle fa-lg delbutton"></i></a>');
 		delhref.click( function(e) {
 			list.mask(lpMsg('Removing Answer..'));
 			me.api.removeAnswer( me.title, ansdata.text, function(resp) {
@@ -26,21 +26,21 @@ WTAnswers.prototype.getListItem = function( list, ansdata ) {
 	}
 
 	var ans_cls = ansdata.exists ? '' : 'new';
-	ans_li.append($j('<a class="'+ans_cls+'" href="'+ansdata.key+'"></a>').append(ansdata.text));
+	ans_li.append($('<a class="'+ans_cls+'" href="'+ansdata.key+'"></a>').append(ansdata.text));
 
 	return ans_li;
 };
 
 WTAnswers.prototype.getList = function( item, data ) {
-	var list = $j('<ul></ul>');
+	var list = $('<ul></ul>');
 
 	var me = this;
 
-	var ival = $j('<input style="width:30%" type="text" />');
-	var igo = $j('<a class="lodbutton">' + lpMsg('Go') + '</a>');
-	var icancel = $j('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
+	var ival = $('<input style="width:30%" type="text" />');
+	var igo = $('<a class="lodbutton">' + lpMsg('Go') + '</a>');
+	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
-	var addans_li = $j('<li></li>').append($j('<div style="width:24px"></div>'));
+	var addans_li = $('<li></li>').append($('<div style="width:24px"></div>'));
 	addans_li.append(ival).append(igo).append(icancel).hide();
 	list.append(addans_li);
 
@@ -70,7 +70,7 @@ WTAnswers.prototype.getList = function( item, data ) {
 	});
 
 	if(data) {
-		$j.each(data.Answers, function(ind, ans) {
+		$.each(data.Answers, function(ind, ans) {
 			var ans_li = me.getListItem(item, ans.item);
 			list.append(ans_li);
 		});
@@ -92,15 +92,15 @@ WTAnswers.prototype.display = function( item ) {
 
 	var addans_link = '';
 	if(wtuid) {
-		addans_link = $j('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
+		addans_link = $('<a class="lodlink"><i class="fa fa-plus-circle fa-lg"></i></a>');
 		addans_link.click(function( e ) {
 			list.find('li:first').css('display', '');
 		});
 	}
 
-	var header = $j('<div class="heading"></div>').append($j('<b>Answers</b>')).append(' ').append(addans_link);
+	var header = $('<div class="heading"></div>').append($('<b>Answers</b>')).append(' ').append(addans_link);
 	item.append(header);
-	var wrapper = $j('<div style="padding:5px"></div>');
+	var wrapper = $('<div style="padding:5px"></div>');
 	wrapper.append(list);
 	item.append(wrapper);
 };
