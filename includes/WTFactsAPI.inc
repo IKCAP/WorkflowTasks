@@ -1018,9 +1018,21 @@ class WTFactsAPI extends ApiBase {
 	}
 
 	public static function createPageWithCategory($title, $category) {
-		$text = $category ? "[[Category:$category]]\n" : "";
-		$summary = "Creating new page with Category: $category";
-		return WTFactsAPI::createWikiPage($title, $text, $summary);
+		$subTitle = Title::newFromText($title);
+		$cat = "";
+		if($subTitle->exists()) {
+			$subject = SMWDIWikiPage::newFromTitle( $subTitle );
+			$data = WTFactsAPI::getSemanticData( $subject );
+			foreach($data->getPropertyValues(SMWDIProperty::newFromUserLabel("_INST")) as $catobj)
+				$cat = $catobj->getDbKey();
+		}
+		if(!$subTitle->exists() || $cat != $category) {
+			$text = $category ? "[[Category:$category]]\n" : "";
+			$summary = "Creating new page with Category: $category";
+			return WTFactsAPI::createWikiPage($title, $text, $summary);
+		} else {
+			return array( "Success", "Already exists" );
+		}
 	}
 
 	public static function createWikiPage($title, $text, $summary) {
