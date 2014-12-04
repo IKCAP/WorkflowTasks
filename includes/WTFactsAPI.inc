@@ -30,7 +30,7 @@ class WTFactsAPI extends ApiBase {
 		$title = $params['title'];
 		if (is_null($title)) $this->dieUsage('Must specify page title', 'unspecified_title');
 
-		$property = $params['property'];
+		$property = ucfirst($params['property']);
 		$value = $params['value'];
 		$oldvalue = $params['oldvalue'];
 		$subobjs = $params['subobjectsjson'] ? json_decode($params['subobjectsjson'], true) : null;
