@@ -108,7 +108,7 @@ WTFacts.prototype.getfactrow = function( fact, item, data ) {
 
 	var valentity = me.generateContent(fact);
 	var authtext = "(By "+fact.value.author+")";
-	tr.append($('<div class="cell icon"></div>').append(delhref));
+	tr.append($('<div class="cell wt-icon"></div>').append(delhref));
 	tr.append($('<div class="cell label"></div>').append(propentity));
 	tr.append($('<div class="cell content"></div>').append(valentity));
 	tr.append($('<div class="cell author"></div>').html(authtext));
@@ -127,7 +127,7 @@ WTFacts.prototype.getfactstable = function( item, data ) {
 	var icancel = $('<a class="lodbutton">' + lpMsg('Cancel') + '</a>');
 
 	var addfact_tr = $('<div class="row"></div>');
-	addfact_tr.append($('<div class="cell icon"></div>'));
+	addfact_tr.append($('<div class="cell wt-icon"></div>'));
 	addfact_tr.append($('<div class="cell label"></div>').append(iprop));
 	addfact_tr.append($('<div class="cell content"></div>').append(ival));
 	addfact_tr.append($('<div class="cell"></div>').append(igo).append(icancel)).hide();

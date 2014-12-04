@@ -516,31 +516,30 @@ a.todo:hover {
 	overflow:hidden; 
 	text-overflow:ellipsis;
 }
-.props-table .row.fade .cell.icon,
+.props-table .row.fade .cell.wt-icon,
 .props-table .row.fade,
 .props-table .row.fade a {
 	color:#bbbbbb !important;
 }
 .props-table .row .cell.label{
-	width: 25%;
+	width: 30%;
 	white-space: nowrap;
 }
 .props-table .row .cell.author {
-	width: 25%;
+	width: 15%;
 	font-size:9px;
 	color:#999;
 	text-align:right;
 	white-space: nowrap;
 }
-.props-table .row .cell.icon{
+.props-table .row .cell.wt-icon{
 	color: #97bb5a;
-	width: 18px;
+	width: 24px;
 	padding-left: 6px;
-	text-align: 'center';
 }
 .props-table .row .cell.content{
 }
-.props-table .row .cell.icon .mandatory{
+.props-table .row .cell.wt-icon .mandatory{
 	vertical-align: 3px; 
 	font-size: 70%; 
 	font-weight:bold;

@@ -86,7 +86,7 @@ WTStdProperties.prototype.closeAllEdits = function() {
 };
 
 WTStdProperties.prototype.appendIconCell = function($row, pname, property) {
-	$cell = $('<div class="cell icon"></div>');
+	$cell = $('<div class="cell wt-icon"></div>');
 	var icon = property.icon ? property.icon : 'fa-tag';
 	var iconhtml = '<i class="fa '+icon+' fa-lg"></i> ';
 	$cell.html(iconhtml);
