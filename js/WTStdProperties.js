@@ -45,7 +45,18 @@ WTStdProperties.prototype.appendRow = function(property, pname) {
 			me.closeAllEdits();
 			$t.addClass('edit');
 			$c = $t.find('.content');
-			me.generateEdit(pname, $c);
+			$c.html('');
+			var index = 0;
+			var valobj = me.propValue(pname, index);
+			while(valobj) {
+				$in = me.generateEdit($c, pname, valobj);
+				valobj = me.propValue(pname, ++index);
+			}
+			if(property.multivalues || !index) {
+				$in = me.generateEdit($c, pname, null, true);
+				if(index)
+					$in.attr('placeholder', 'Add another '+$in.attr('placeholder'));
+			}
 		}
 		e.stopPropagation();
 	});	
@@ -54,6 +65,25 @@ WTStdProperties.prototype.appendRow = function(property, pname) {
 	me.appendContentCell($row, pname);
 	me.appendAuthorCell($row, pname);
 	return $row;
+};
+
+WTStdProperties.prototype.generateCancelButton = function(pname, valobj) {
+	var me = this;
+	var oldv = (valobj && valobj.val) ? valobj.val : null;
+	if(!oldv) return null;
+	var delhref = $('<a class="lodlink"><i class="fa fa-times-circle delbutton"></i></a>');
+	delhref.click( function(e) {
+		var p = me.stdprops[pname];
+		me.$item.mask(lpMsg('Removing Fact..'));
+		me.api.removeFact( me.title, p.label, oldv, function(response){
+			me.$item.unmask();
+			if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
+			me.wtfacts = response.wtfacts.facts;
+			me.closeAllEdits();
+			me.updateIcons();
+		});
+	});
+	return delhref;
 };
 
 WTStdProperties.prototype.appendHeadingRow = function() {
@@ -80,8 +110,16 @@ WTStdProperties.prototype.closeAllEdits = function() {
 		$row = $(row);
 		$row.removeClass('edit');
 		var pname = $row.attr('property');
-		$row.find('.content').html(me.generateContent(pname));
-		$row.find('.author').html(me.getAuthorCredit(pname));
+		var index = 0;
+		$c = $row.find('.content');
+		$a = $row.find('.author');
+		$c.html(''); $a.html('');
+		$content = me.generateContent(pname, index);
+		while($content) {
+			$c.append($content);
+			$a.append(me.getAuthorCredit(pname, index));
+			$content = me.generateContent(pname, ++index);
+		}
 	});
 };
 
@@ -107,25 +145,37 @@ WTStdProperties.prototype.appendLabelCell = function($row, pname, property) {
 
 WTStdProperties.prototype.appendContentCell = function($row, pname) {	
 	$cell = $('<div class="cell content"></div>');
-	$cell.append(this.generateContent(pname));	
+	//$cell.append(this.generateContent(pname));	
+	var index = 0;
+	$content = this.generateContent(pname, index);
+	while($content) {
+		$cell.append($content);
+		$content = this.generateContent(pname, ++index);
+	}
 	$row.append($cell)
 };
 
 WTStdProperties.prototype.appendAuthorCell = function($row, pname) {	
     $cell = $('<div class="cell author"></div>');
-	$cell.html(this.getAuthorCredit(pname));
+	//$cell.html(this.getAuthorCredit(pname));
+	var index = 0;
+	$auth = this.getAuthorCredit(pname, index);
+	while($auth) {
+		$cell.append($auth);
+		$auth = this.getAuthorCredit(pname, ++index);
+	}
 	$row.append($cell)
 };
 
-WTStdProperties.prototype.getAuthorCredit = function(pname) {	
+WTStdProperties.prototype.getAuthorCredit = function(pname, index) {	
 	var html = "";
-	var valobj = this.propValue(pname);
+	var valobj = this.propValue(pname, index);
 	if(valobj && valobj.author)
-		html = "(By "+valobj.author+")";
+		html = "<div>(By "+valobj.author+")</div>";
 	return html;
 };
 
-WTStdProperties.prototype.generateEdit = function(pname, $content) {
+WTStdProperties.prototype.generateEdit = function($content, pname, valobj, addop) {
 	var me = this;
 	var p = me.stdprops[pname];
 
@@ -143,6 +193,9 @@ WTStdProperties.prototype.generateEdit = function(pname, $content) {
 						me.api.getSuggestions(request.term, p.category, function(sug) {
 							response.call(this, sug.wtsuggest.suggestions);
 						});
+					},
+					select: function(e) {
+						e.stopPropagation();
 					}
 				});
 			}
@@ -157,32 +210,54 @@ WTStdProperties.prototype.generateEdit = function(pname, $content) {
 			$in = $('<input type="text" placeholder="URL"/>');
 			break;
 	}
-	var valobj = this.propValue(pname);
+	if(!valobj && !addop)
+		return null;
+
 	if(valobj)
 		$in.val(valobj.val);
 	$in.keyup(function(e){
 		if(e.keyCode == 13){
-			var v = $in.val();
+			var v = e.currentTarget.value;
 			var oldv = (valobj && valobj.val) ? valobj.val : null;
-			me.$item.mask('Setting '+p.label);
-			me.api.setFact(me.title, p.label, v, oldv, function(response){
-				me.$item.unmask();
-				if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
-				me.wtfacts = response.wtfacts.facts;
-				me.closeAllEdits();
-				me.updateIcons();
-        	});
+			if(addop) {
+				if(v) {
+					me.$item.mask('Adding '+p.label);
+					me.api.addFact(me.title, p.label, v, function(response){
+						me.$item.unmask();
+						if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
+						me.wtfacts = response.wtfacts.facts;
+						me.closeAllEdits();
+						me.updateIcons();
+        			});
+				}
+			}
+			else if(v != oldv) {
+				me.$item.mask('Setting '+p.label);
+				me.api.setFact(me.title, p.label, v, oldv, function(response){
+					me.$item.unmask();
+					if(!response || !response.wtfacts || !response.wtfacts.facts) return; 
+					me.wtfacts = response.wtfacts.facts;
+					me.closeAllEdits();
+					me.updateIcons();
+        		});
+			}
 		}
 	});
-	$content.html('');
-	$content.append($in);
+	$div = $('<div style="white-space:nowrap"></div>');
+	if(!addop)
+		$div.append(this.generateCancelButton(pname, valobj)).append(' ');
+	else	
+		$div.append('<i class="fa fa-plus"></i>').append(' ');
+	$div.append($in);
+	$content.append($div);
 	$in.focus();
+	return $in;
 };
 
-WTStdProperties.prototype.generateContent = function(pname) {
+WTStdProperties.prototype.generateContent = function(pname, index) {
 	var me = this;
 	var property = this.stdprops[pname];
-	var valobj = me.propValue(pname);
+	var valobj = me.propValue(pname, index);
 	$content = $('<div></div>');
 	if(valobj) {
     	$valentity = $("<span></span>");
@@ -199,18 +274,21 @@ WTStdProperties.prototype.generateContent = function(pname) {
     	}
 		$content.html('');
 		$content.append($valentity);
-	}else{
+	} else if(!index) {
 		$content.html('Not defined!');
 		$content.addClass('notexist');	
+	} else if(index) {
+		return null;
 	}
 	return $content;
 };
 
-WTStdProperties.prototype.propValue = function(pname) {
+WTStdProperties.prototype.propValue = function(pname, index) {
 	var me = this;
+	if(!index) index=0;
 	var valobj = this.wtfacts[pname];
-	if(valobj && valobj.values && valobj.values.length)
-		return valobj.values[0];
+	if(valobj && valobj.values && valobj.values.length > index)
+		return valobj.values[index];
 	return null;
 };
 

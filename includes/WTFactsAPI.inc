@@ -262,6 +262,11 @@ class WTFactsAPI extends ApiBase {
 		foreach ( $valobjs as $di ) {
 			$pdetails['icon'] = WTFactsAPI::getDIText($di);
 		}
+		$multivals = SMWDIProperty::newFromUserLabel( "Has_multiple_values" );
+		$valobjs = $data->getPropertyValues($multivals);
+		foreach ( $valobjs as $di ) {
+			$pdetails['multivalues'] = WTFactsAPI::getDIText($di);
+		}
 		return $pdetails;
 	}
 
