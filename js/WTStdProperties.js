@@ -209,6 +209,15 @@ WTStdProperties.prototype.generateEdit = function($content, pname, valobj, addop
 		case('_uri'):
 			$in = $('<input type="text" placeholder="URL"/>');
 			break;
+		case('_txt'):
+			$in = $('<input type="text" placeholder="Text"/>');
+			break;
+		case('_ema'):
+			$in = $('<input type="text" placeholder="Email"/>');
+			break;
+		case('_boo'):
+			$in = $('<input type="text" placeholder="Boolean"/>');
+			break;
 	}
 	if(!valobj && !addop)
 		return null;
