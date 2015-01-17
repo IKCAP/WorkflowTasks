@@ -267,6 +267,11 @@ class WTFactsAPI extends ApiBase {
 		foreach ( $valobjs as $di ) {
 			$pdetails['multivalues'] = WTFactsAPI::getDIText($di);
 		}
+		$parentprop = SMWDIProperty::newFromUserLabel( "Parent_property" );
+		$parentobjs = $data->getPropertyValues($parentprop);
+		foreach ( $parentobjs as $di ) {
+			$pdetails['parent'] = $di->getDbKey();
+		}
 		return $pdetails;
 	}
 

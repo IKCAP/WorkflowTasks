@@ -23,15 +23,57 @@ WTStdProperties.prototype.notify = function() {
 
 WTStdProperties.prototype.generateTable = function() {
 	var me = this;
+
+	// Add children and levels to properties
+	for(var pname in this.stdprops) {
+		var prop = this.stdprops[pname];
+		if(prop.parent) {
+			var pprop = this.stdprops[prop.parent];
+			if(pprop.children)
+				pprop.children.push(prop);
+			else 
+				pprop.children = [prop];
+		}
+	}
+	for(var pname in this.stdprops) {
+		var prop = this.stdprops[pname];
+		prop.level = 0;
+		var curprop = prop;
+		while(curprop.parent) {
+			prop.level++;
+			curprop = this.stdprops[curprop.parent];
+		}
+	}
+
 	me.$table =  $('<div class="table"></div>');
 	me.appendHeadingRow();
 	me.$item.append(me.$table);
 	for(var pname in this.stdprops) {
 		var property = this.stdprops[pname];
-		me.appendRow(property, pname)
+		me.appendPropertyRows(property, pname, 0);
 	}
 	me.appendNotesRow();
 	me.updateIcons();
+};
+
+WTStdProperties.prototype.appendPropertyRows = function(property, pname, lvl) {
+	if(property.level != lvl)
+		return;
+	$row = this.appendRow(property, pname)
+	if(property.level) {
+		$label = $row.find('.label');
+		var pad = '';
+		for(var i=0; i<(property.level-1)*5; i++) 
+			pad += '&nbsp;';
+		pad += '&#8627;';
+		$label.html(pad + ' ' + $label.html());
+	}
+	if(property.children) {
+		for(var i=0; i<property.children.length; i++) {
+			var cprop = property.children[i];
+			this.appendPropertyRows(cprop, cprop.label, lvl+1);
+		}
+	}
 };
 
 WTStdProperties.prototype.appendRow = function(property, pname) {
